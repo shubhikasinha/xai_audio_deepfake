@@ -1,0 +1,125 @@
+# Degradation Conditions Configuration
+# All conditions applied to ASVspoof 2021 DF evaluation set
+
+conditions:
+  # ---- Built-in ASVspoof 2021 DF codec conditions ----
+  C0:
+    name: "Clean"
+    type: "none"
+    description: "No degradation (baseline)"
+    priority: "core"
+    
+  C1:
+    name: "MP3 Low"
+    type: "builtin"
+    codec: "mp3"
+    description: "ASVspoof 2021 DF built-in MP3 (low VBR)"
+    priority: "core"
+    
+  C2:
+    name: "MP3 High"
+    type: "builtin"
+    codec: "mp3"
+    description: "ASVspoof 2021 DF built-in MP3 (high VBR)"
+    priority: "core"
+    
+  C3:
+    name: "M4A Low"
+    type: "builtin"
+    codec: "m4a"
+    description: "ASVspoof 2021 DF built-in M4A (low VBR)"
+    priority: "core"
+    
+  C4:
+    name: "M4A High"
+    type: "builtin"
+    codec: "m4a"
+    description: "ASVspoof 2021 DF built-in M4A (high VBR)"
+    priority: "core"
+    
+  C5:
+    name: "OGG Low"
+    type: "builtin"
+    codec: "ogg"
+    description: "ASVspoof 2021 DF built-in OGG (low VBR)"
+    priority: "core"
+    
+  C6:
+    name: "OGG High"
+    type: "builtin"
+    codec: "ogg"
+    description: "ASVspoof 2021 DF built-in OGG (high VBR)"
+    priority: "core"
+    
+  C7:
+    name: "Mixed Codecs"
+    type: "builtin"
+    codec: "mixed"
+    description: "ASVspoof 2021 DF built-in mixed codec conditions"
+    priority: "core"
+
+  # ---- Custom codec conditions (applied via ffmpeg) ----
+  C8:
+    name: "Opus 16kbps"
+    type: "custom_codec"
+    codec: "libopus"
+    bitrate: "16k"
+    ffmpeg_args: ["-c:a", "libopus", "-b:a", "16k", "-ar", "16000"]
+    description: "Low-bitrate modern VoIP codec"
+    priority: "core"
+    
+  C9:
+    name: "Opus 6kbps"
+    type: "custom_codec"
+    codec: "libopus"
+    bitrate: "6k"
+    ffmpeg_args: ["-c:a", "libopus", "-b:a", "6k", "-ar", "16000"]
+    description: "Extreme compression modern codec"
+    priority: "core"
+
+  # ---- Noise conditions ----
+  N1:
+    name: "AWGN 20dB"
+    type: "noise"
+    noise_type: "gaussian"
+    snr_db: 20
+    description: "Mild additive white Gaussian noise"
+    priority: "core"
+    
+  N2:
+    name: "AWGN 10dB"
+    type: "noise"
+    noise_type: "gaussian"
+    snr_db: 10
+    description: "Moderate additive white Gaussian noise"
+    priority: "core"
+    
+  N3:
+    name: "Babble 15dB"
+    type: "noise"
+    noise_type: "babble"
+    snr_db: 15
+    source: "musan"
+    description: "Babble noise from MUSAN"
+    priority: "extension"
+
+  # ---- Reverb conditions ----
+  R1:
+    name: "Small Room RIR"
+    type: "reverb"
+    rir_type: "small_room"
+    rt60_range: [0.2, 0.4]
+    description: "Mild room reverberation"
+    priority: "extension"
+
+# Condition groups for structured evaluation
+groups:
+  core: ["C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "N1", "N2"]
+  shap_subset: ["C0", "C3", "C7", "C8", "N2"]
+  extension: ["N3", "R1"]
+  all: ["C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "N1", "N2", "N3", "R1"]
+
+# Degradation severity ordering (for progressive analysis)
+severity_order:
+  codec: ["C0", "C2", "C1", "C4", "C3", "C6", "C5", "C7", "C8", "C9"]
+  noise: ["C0", "N1", "N2", "N3"]

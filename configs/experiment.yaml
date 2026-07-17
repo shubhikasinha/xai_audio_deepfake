@@ -1,0 +1,135 @@
+# =============================================================================
+# Master Experiment Configuration
+# Explanation Robustness as an Early-Warning Signal
+# =============================================================================
+
+project:
+  name: "deepfake-xai-robustness"
+  version: "0.1.0"
+  seed: 42
+  device: "cuda"  # "cuda" or "cpu"
+  num_workers: 4
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+paths:
+  data_root: "./data"
+  checkpoint_dir: "./checkpoints"
+  results_dir: "./results"
+  figures_dir: "./results/figures"
+
+  # Dataset-specific paths
+  asvspoof2019_la: "${paths.data_root}/ASVspoof2019_LA"
+  asvspoof2021_df: "${paths.data_root}/ASVspoof2021_DF"
+  wavefake: "${paths.data_root}/WaveFake"
+  musan: "${paths.data_root}/MUSAN"
+
+# ---------------------------------------------------------------------------
+# Models
+# ---------------------------------------------------------------------------
+models:
+  - name: "aasist"
+    config: "configs/models/aasist.yaml"
+    enabled: true
+  - name: "wavlm_ecapa"
+    config: "configs/models/wavlm_ecapa.yaml"
+    enabled: true
+
+# ---------------------------------------------------------------------------
+# XAI Methods
+# ---------------------------------------------------------------------------
+xai:
+  primary_method: "integrated_gradients"
+  secondary_method: "kernel_shap"
+
+  integrated_gradients:
+    n_steps: 50
+    internal_batch_size: 32
+    baseline: "zero"  # "zero" or "random" or "mean"
+
+  kernel_shap:
+    n_samples: 200  # perturbation samples (100-500 range)
+    max_evals: 500
+    # Run on subset only (compute-constrained)
+    subset_conditions: ["C0", "C3", "C7", "C8", "N2"]
+    subset_model: "aasist"  # Only run SHAP on AASIST
+
+# ---------------------------------------------------------------------------
+# Spectrogram Configuration
+# ---------------------------------------------------------------------------
+spectrogram:
+  type: "log_mel"
+  n_mels: 128  # Primary; ablation: 64, 256
+  n_fft: 2048
+  hop_length: 512
+  sample_rate: 16000
+  max_duration_sec: 4.0  # Truncate/pad to this length
+
+# ---------------------------------------------------------------------------
+# Faithfulness Metrics
+# ---------------------------------------------------------------------------
+faithfulness:
+  deletion:
+    n_steps: 20  # Number of deletion steps (0%, 5%, 10%, ..., 100%)
+    baseline: "zero"
+  insertion:
+    n_steps: 20
+    baseline: "zero"
+  sensitivity_n:
+    n_subsets: 100
+    subset_size_ratio: 0.1
+
+# ---------------------------------------------------------------------------
+# Explanation Consistency Score (ECS)
+# ---------------------------------------------------------------------------
+ecs:
+  alpha: 0.4   # Stability weight (cosine similarity)
+  beta: 0.3    # Spectral band alignment weight
+  gamma: 0.3   # Faithfulness preservation weight
+  # Artifact frequency bands for spectral alignment (Hz)
+  artifact_bands:
+    - [0, 500]       # Low-frequency artifacts
+    - [4000, 8000]   # High-frequency synthesis artifacts
+    - [2000, 4000]   # Formant region
+
+# ---------------------------------------------------------------------------
+# LLM Explanation Module
+# ---------------------------------------------------------------------------
+llm:
+  provider: "gemini"  # "gemini" or "openai"
+  model: "gemini-2.0-flash"
+  max_tokens: 500
+  temperature: 0.3
+  # Run on subset for cost control
+  n_samples_per_condition: 50
+
+# ---------------------------------------------------------------------------
+# Statistical Testing
+# ---------------------------------------------------------------------------
+statistics:
+  confidence_level: 0.95
+  bonferroni_correction: true
+  bootstrap_n_resamples: 10000
+  min_effect_size: 0.2  # Cohen's d threshold for practical significance
+
+# ---------------------------------------------------------------------------
+# Human Study
+# ---------------------------------------------------------------------------
+human_study:
+  n_samples: 20
+  n_raters: 5
+  likert_scale: 5
+  dimensions:
+    - "informativeness"
+    - "technical_accuracy"
+    - "actionability"
+
+# ---------------------------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------------------------
+evaluation:
+  batch_size: 32
+  n_eval_samples: null  # null = use all; set integer for quick testing
+  save_attributions: true
+  save_explanations: true

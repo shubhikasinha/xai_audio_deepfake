@@ -1,0 +1,46 @@
+# AASIST Model Configuration
+# Graph Attention Network for Audio Anti-Spoofing
+
+model:
+  name: "aasist"
+  architecture: "graph_attention"
+  
+  # Architecture parameters (match original AASIST paper)
+  encoder:
+    sinc_channels: 70
+    sinc_kernel_size: 128
+    sinc_stride: 16
+    
+  graph:
+    num_heads: 2
+    hidden_dim: 64
+    num_layers: 6
+    
+  classifier:
+    hidden_dim: 160
+    dropout: 0.1
+
+# Pretrained checkpoint
+checkpoint:
+  source: "official"  # "official" or "custom"
+  url: "https://github.com/clovaai/aasist"
+  local_path: "checkpoints/aasist/AASIST.pth"
+  
+# Input configuration  
+input:
+  sample_rate: 16000
+  max_length: 64000  # 4 seconds at 16kHz
+  raw_waveform: true  # AASIST takes raw waveform input
+
+# Training configuration (if fine-tuning needed)
+training:
+  freeze_backbone: true  # Use pretrained weights as-is
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  
+# XAI compatibility
+xai:
+  supports_ig: true
+  supports_shap: true
+  attribution_target: "spectrogram"  # Compute attributions on internal spectrogram
+  ig_layer: "encoder.sinc_conv"  # Layer for IG attribution

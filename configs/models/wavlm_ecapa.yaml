@@ -1,0 +1,59 @@
+# WavLM + ECAPA-TDNN Model Configuration
+# Self-Supervised Learning Transformer + TDNN back-end
+
+model:
+  name: "wavlm_ecapa"
+  architecture: "ssl_transformer_tdnn"
+  
+  # Front-end: WavLM
+  frontend:
+    model_name: "microsoft/wavlm-large"
+    hidden_size: 1024
+    num_layers: 24
+    # Layer selection for feature extraction
+    layer_weights: "learnable"  # "learnable", "last", or "weighted_sum"
+    selected_layers: [6, 12, 18, 24]  # Layers to extract features from
+    freeze_frontend: true  # Freeze WavLM weights (use as feature extractor)
+    
+  # Back-end: ECAPA-TDNN
+  backend:
+    channels: [512, 512, 512, 512, 1536]
+    kernel_sizes: [5, 3, 3, 3, 1]
+    dilations: [1, 2, 3, 4, 1]
+    attention_channels: 128
+    lin_neurons: 192  # Embedding dimension
+    
+  # Classifier
+  classifier:
+    hidden_dim: 256
+    num_classes: 2
+    dropout: 0.1
+
+# Pretrained checkpoint
+checkpoint:
+  frontend_source: "huggingface"
+  frontend_model: "microsoft/wavlm-large"
+  backend_source: "speechbrain"  
+  # Fine-tuned checkpoint for spoofing detection
+  local_path: "checkpoints/wavlm_ecapa/best_model.pth"
+
+# Input configuration
+input:
+  sample_rate: 16000
+  max_length: 64000  # 4 seconds at 16kHz
+  raw_waveform: true  # WavLM takes raw waveform
+
+# Training configuration
+training:
+  freeze_frontend: true
+  learning_rate: 0.00001
+  weight_decay: 0.0001
+  scheduler: "cosine"
+  warmup_steps: 1000
+  
+# XAI compatibility
+xai:
+  supports_ig: true
+  supports_shap: false  # Too expensive for full SHAP on transformer
+  attribution_target: "spectrogram"
+  ig_layer: "frontend.feature_extractor"
