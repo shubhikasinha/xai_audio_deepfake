@@ -25,11 +25,13 @@
 - [x] Create main pipeline script with quick-test mode
 - [x] Create unit tests (ECS, metrics, XAI utilities)
 - [x] Create setup.py and LICENSE
+- [x] Create notebooks/kaggle_runner.ipynb (Kaggle Integration Helper)
+
 
 ## Phase 1 — Remaining Tasks (Week 1-2)
-- [ ] Set up virtual environment and install dependencies
-- [ ] Run quick-test to verify pipeline (`python scripts/run_full_pipeline.py --quick-test`)
-- [ ] Run unit tests (`python -m pytest tests/ -v`)
+- [x] Set up virtual environment and install dependencies
+- [x] Run quick-test to verify pipeline (`python scripts/run_full_pipeline.py --quick-test`)
+- [x] Run unit tests (`python -m pytest tests/ -v`)
 - [ ] Download ASVspoof 2019 LA from Zenodo
 - [ ] Download ASVspoof 2021 DF from Zenodo
 - [ ] Download AASIST pretrained checkpoint
@@ -62,3 +64,9 @@
 - [ ] Write paper in Springer CCIS LaTeX
 - [ ] Internal review cycle
 - [ ] Submit to AIST 2026
+
+## Kaggle & Colab Execution Plan
+- **No Local Downloads:** Both ASVspoof 2019 LA and 2021 DF are publicly available directly as Kaggle datasets.
+- **Computation:** Run all Phase 2 & 3 experiment scripts using Kaggle's free GPU instances (T4 x2).
+- **Workflow:** Commit local changes to Git, pull inside a Kaggle notebook, mount the public datasets, and run the pipeline scripts. Save only output CSVs and generated figures.
+

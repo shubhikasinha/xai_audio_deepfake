@@ -84,7 +84,7 @@ Statistical Analysis (Spearman ρ, Wilcoxon, Bootstrap CI, Cohen's d)
 
 | Dataset | Role | Access |
 |---------|------|--------|
-| **ASVspoof 2019 LA** | Training | [Zenodo](https://zenodo.org/record/2557004) |
+| **ASVspoof 2019 LA** | Training | [Edinburgh DataShare](https://datashare.ed.ac.uk/handle/10283/3336) |
 | **ASVspoof 2021 DF** | Primary evaluation (7 built-in codec conditions) | [Zenodo](https://zenodo.org/record/4835108) |
 | **WaveFake** | Cross-dataset generalization | [Zenodo](https://zenodo.org/record/5642694) |
 | **MUSAN** | Noise augmentation | [OpenSLR](https://www.openslr.org/17/) |

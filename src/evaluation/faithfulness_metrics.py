@@ -76,7 +76,8 @@ def compute_deletion_auc(
 
     # Compute AUC using trapezoidal rule
     x = np.linspace(0, 1, n_steps + 1)
-    auc = float(np.trapz(predictions, x))
+    trapz_fn = getattr(np, 'trapezoid', getattr(np, 'trapz', None))
+    auc = float(trapz_fn(predictions, x))
 
     return auc, predictions
 
@@ -138,7 +139,8 @@ def compute_insertion_auc(
             predictions[step_idx] = model_fn(inserted_tensor)
 
     x = np.linspace(0, 1, n_steps + 1)
-    auc = float(np.trapz(predictions, x))
+    trapz_fn = getattr(np, 'trapezoid', getattr(np, 'trapz', None))
+    auc = float(trapz_fn(predictions, x))
 
     return auc, predictions
 

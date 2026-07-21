@@ -25,7 +25,9 @@ import yaml
 from tqdm import tqdm
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from src.models.aasist import AASISTDetector
 from src.models.wavlm_ecapa import WavLMECAPADetector
@@ -89,15 +91,15 @@ def run_quick_test(config: dict, n_samples: int = 10):
     print("\n[1/6] Generating synthetic test data...")
     waveforms = torch.randn(n_samples, n_samples_audio)
     labels = torch.randint(0, 2, (n_samples,))
-    print(f"  → Generated {n_samples} samples ({duration_sec}s each)")
+    print(f"  -> Generated {n_samples} samples ({duration_sec}s each)")
 
     # Test AASIST
     print("\n[2/6] Testing AASIST detector...")
     model = AASISTDetector(device=device)
     with torch.no_grad():
         result = model.predict(waveforms[:2])
-    print(f"  → AASIST scores: {result['scores'].numpy()}")
-    print(f"  → AASIST probs:  {result['probs'].numpy()}")
+    print(f"  -> AASIST scores: {result['scores'].numpy()}")
+    print(f"  -> AASIST probs:  {result['probs'].numpy()}")
 
     # Test Integrated Gradients
     print("\n[3/6] Testing Integrated Gradients...")
@@ -105,8 +107,8 @@ def run_quick_test(config: dict, n_samples: int = 10):
         model, device=device, n_steps=5, n_mels=64
     )
     attr = ig.explain(waveforms[0])
-    print(f"  → Attribution shape: {attr.shape}")
-    print(f"  → Attribution range: [{attr.min():.4f}, {attr.max():.4f}]")
+    print(f"  -> Attribution shape: {attr.shape}")
+    print(f"  -> Attribution range: [{attr.min():.4f}, {attr.max():.4f}]")
 
     # Test faithfulness metrics
     print("\n[4/6] Testing faithfulness metrics...")
@@ -123,7 +125,7 @@ def run_quick_test(config: dict, n_samples: int = 10):
     del_auc, del_curve = compute_deletion_auc(
         model_fn, waveforms[0].numpy(), attr, n_steps=5, hop_length=512
     )
-    print(f"  → Deletion AUC: {del_auc:.4f}")
+    print(f"  -> Deletion AUC: {del_auc:.4f}")
 
     # Test ECS
     print("\n[5/6] Testing Explanation Consistency Score...")
@@ -141,22 +143,22 @@ def run_quick_test(config: dict, n_samples: int = 10):
         del_auc_clean=del_auc,
         del_auc_degraded=del_auc + 0.05,
     )
-    print(f"  → ECS: {ecs_result['ecs']:.4f}")
-    print(f"  → Stability: {ecs_result['stability']:.4f}")
-    print(f"  → Alignment: {ecs_result['spectral_alignment']:.4f}")
+    print(f"  -> ECS: {ecs_result['ecs']:.4f}")
+    print(f"  -> Stability: {ecs_result['stability']:.4f}")
+    print(f"  -> Alignment: {ecs_result['spectral_alignment']:.4f}")
 
     # Test statistical utilities
     print("\n[6/6] Testing statistical utilities...")
     x = np.random.randn(10)
     y = x * 0.5 + np.random.randn(10) * 0.3
     corr_result = spearman_correlation(x, y)
-    print(f"  → Spearman ρ: {corr_result['rho']:.4f} (p={corr_result['p_value']:.4f})")
+    print(f"  -> Spearman rho: {corr_result['rho']:.4f} (p={corr_result['p_value']:.4f})")
 
     ci_result = bootstrap_ci(x, n_resamples=1000)
-    print(f"  → Bootstrap CI: [{ci_result['ci_lower']:.4f}, {ci_result['ci_upper']:.4f}]")
+    print(f"  -> Bootstrap CI: [{ci_result['ci_lower']:.4f}, {ci_result['ci_upper']:.4f}]")
 
     print("\n" + "=" * 60)
-    print("✓ ALL COMPONENTS PASSED — Pipeline is functional")
+    print("PASS: ALL COMPONENTS PASSED - Pipeline is functional")
     print("=" * 60)
 
 
