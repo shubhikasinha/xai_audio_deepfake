@@ -7,6 +7,12 @@ feature extractor with an ECAPA-TDNN back-end for deepfake detection.
 
 import os
 from typing import Dict, List, Optional
+import sys
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 import torch
 import torch.nn as nn

@@ -7,6 +7,12 @@ graph attention network for use in the XAI robustness pipeline.
 
 import os
 from typing import Dict, Optional
+import sys
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 import torch
 import torch.nn as nn

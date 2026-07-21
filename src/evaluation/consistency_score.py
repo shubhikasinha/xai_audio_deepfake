@@ -13,6 +13,12 @@ where α + β + γ = 1
 
 import numpy as np
 from typing import Dict, List, Optional, Tuple
+import sys
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 from src.evaluation.faithfulness_metrics import (
     compute_explanation_stability,
