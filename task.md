@@ -69,4 +69,6 @@
 - **No Local Downloads:** Both ASVspoof 2019 LA and 2021 DF are publicly available directly as Kaggle datasets.
 - **Computation:** Run all Phase 2 & 3 experiment scripts using Kaggle's free GPU instances (T4 x2).
 - **Workflow:** Commit local changes to Git, pull inside a Kaggle notebook, mount the public datasets, and run the pipeline scripts. Save only output CSVs and generated figures.
+- [x] **Fixed Kaggle Execution Errors:** Fully resolved `ModuleNotFoundError: No module named 'src.data'` and Python environment `numpy` conflicts by refactoring `deepfake.ipynb`. Applied inline hotfix for `RuntimeError: stft input and window must be on the same device` by programmatically moving `MelSpectrogram` to match the waveform's device during runtime, ensuring error-free execution of the Kernel SHAP pipeline components.
+
 

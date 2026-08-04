@@ -6,8 +6,14 @@ import os
 import numpy as np
 import torch
 import torchaudio
-import librosa
-import soundfile as sf
+try:
+    import librosa
+except ImportError:
+    librosa = None
+try:
+    import soundfile as sf
+except ImportError:
+    sf = None
 from typing import Optional, Tuple
 
 
@@ -90,11 +96,17 @@ def compute_spectrogram(
     if waveform.dim() == 1:
         waveform = waveform.unsqueeze(0)
 
+    device = waveform.device
+
+    # MelSpectrogram's STFT window is created lazily on the first forward call,
+    # so calling .to(device) on the transform does NOT move the window buffer.
+    # Fix: provide an explicit window on the correct device via window_fn.
     mel_transform = torchaudio.transforms.MelSpectrogram(
         sample_rate=sample_rate,
         n_fft=n_fft,
         hop_length=hop_length,
         n_mels=n_mels,
+        window_fn=lambda size, **kwargs: torch.hann_window(size, device=device),
     )
 
     mel_spec = mel_transform(waveform)

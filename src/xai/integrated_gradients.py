@@ -178,11 +178,13 @@ class IntegratedGradientsExplainer(BaseExplainer):
         if waveform_attr.dim() > 1:
             waveform_attr = waveform_attr.squeeze()
 
-        # Compute STFT of attributions
+        # Compute STFT of attributions (use Hann window to avoid spectral leakage)
+        window = torch.hann_window(self.n_fft)
         stft_attr = torch.stft(
             waveform_attr,
             n_fft=self.n_fft,
             hop_length=self.hop_length,
+            window=window,
             return_complex=True,
         )
         magnitude_attr = torch.abs(stft_attr)  # [F, T']
@@ -195,14 +197,25 @@ class IntegratedGradientsExplainer(BaseExplainer):
 
     def _mel_filterbank(self) -> torch.Tensor:
         """Create mel filterbank matrix [n_mels, n_fft//2+1]."""
-        import librosa
-
-        mel_fb = librosa.filters.mel(
-            sr=self.sample_rate,
-            n_fft=self.n_fft,
-            n_mels=self.n_mels,
-        )
-        return torch.from_numpy(mel_fb).float()
+        try:
+            import librosa
+            mel_fb = librosa.filters.mel(
+                sr=self.sample_rate,
+                n_fft=self.n_fft,
+                n_mels=self.n_mels,
+            )
+            return torch.from_numpy(mel_fb).float()
+        except ImportError:
+            import torchaudio.functional as F_audio
+            # torchaudio returns [n_freqs, n_mels] -> transpose to [n_mels, n_freqs]
+            mel_fb = F_audio.melscale_fbanks(
+                n_freqs=self.n_fft // 2 + 1,
+                f_min=0.0,
+                f_max=float(self.sample_rate / 2.0),
+                n_mels=self.n_mels,
+                sample_rate=self.sample_rate,
+            )
+            return mel_fb.T.float()
 
     def explain_with_captum(
         self,
