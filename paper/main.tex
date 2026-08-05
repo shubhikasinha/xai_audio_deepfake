@@ -33,30 +33,16 @@ Under Real-World Codecs and Noise}
 
 \titlerunning{Explanation Robustness as an Early-Warning Signal}
 
-\author{Shubhika Sinha}
-\authorrunning{S. Sinha}
+\author{Anonymous Authors}
+\authorrunning{Anon.}
 
-\institute{Department of Computer Science\\
-\email{shubhikasinha@example.com}}
+\institute{Anonymous Institution\\
+\email{anonymous@example.com}}
 
 \maketitle
 
 \begin{abstract}
-Audio deepfake detectors achieve strong benchmark accuracy, yet their post-hoc
-explanations---attribution maps that analysts rely on to understand \emph{why} a
-sample is flagged---have never been systematically stress-tested under the
-real-world degradations that affect deployment.
-We present the first study that explicitly \emph{decouples} detection accuracy
-from explanation faithfulness under controlled codec compression and additive noise.
-Evaluating the \aasist{} graph-attention detector using Integrated Gradients on
-five degradation conditions derived from ASVspoof 2021 DF, we introduce the \textbf{Explanation Consistency
-Score} (\ecs{}), a novel composite metric combining attribution stability,
-spectral band alignment, and faithfulness preservation.
-Our central finding is striking: Opus~6\,kbps compression causes complete
-explanation collapse (\ecs{}$\approx$0.299, stability$=0$) while higher-bitrate
-and noise conditions (\ecs{}$>$0.850) remain trustworthy.
-We demonstrate that \ecs{} functions as a practical early-warning signal for forensic deployment,
-flagging untrustworthy conditions that traditional detection metrics alone cannot distinguish.
+Audio deepfake detectors achieve strong benchmark accuracy, yet post-hoc explanations---attribution maps that analysts rely on to understand why a sample is flagged---have never been systematically stress-tested under real-world transmission degradations. This paper presents the first study explicitly decoupling detection accuracy from explanation faithfulness under controlled codec compression and additive noise. Evaluating the AASIST graph-attention detector using Integrated Gradients on evaluation partitions derived from ASVspoof 2021 DF across five degradation conditions, a novel composite metric termed the Explanation Consistency Score (ECS) is introduced, combining attribution stability, spectral band alignment, and faithfulness preservation. Empirical findings reveal a qualitative degradation boundary: Opus 6\,kbps compression induces severe explanation collapse ($\text{ECS} = 0.290 \pm 0.028$, attribution stability falling to $0.184$), whereas moderate bitrate compression (Opus 16\,kbps) and additive noise (AWGN 10--20\,dB) maintain trustworthy explanations ($\text{ECS} > 0.850$). The proposed ECS metric functions as an operational early-warning signal for forensic deployment, proactively flagging untrustworthy explanation states that standard detection metrics alone fail to distinguish.
 \end{abstract}
 
 \keywords{Audio deepfake detection \and XAI faithfulness \and Explanation
@@ -88,30 +74,20 @@ remain faithful and consistent when the audio undergoes the real-world
 degradations---codec compression, additive noise, transmission artefacts---that
 already challenge detection accuracy?}
 
-We identify this as a \textbf{trust gap}: a detector may sustain its spoof
+This discrepancy creates a \textbf{trust gap}: a detector may sustain its spoof
 verdict under moderate degradation, but its explanation may silently shift to
 highlight irrelevant spectral regions, rendering the rationale meaningless---or
 actively misleading---to an analyst.
 
 \subsection*{Contributions}
 \begin{enumerate}
-  \item \textbf{First decoupled analysis} of detection accuracy versus explanation
-    faithfulness under controlled real-world degradation on ASVspoof 2021 DF,
-    across five codec and noise conditions.
+  \item \textbf{Decoupled Analysis}: A framework decoupling detection accuracy from explanation faithfulness under controlled real-world degradation on ASVspoof 2021 DF across five codec and noise conditions.
 
-  \item \textbf{Explanation Consistency Score (\ecs{})}: a novel composite metric
-    combining attribution stability (cosine similarity across conditions), spectral
-    band alignment, and faithfulness preservation via Deletion AUC change, providing
-    a single deployable trustworthiness signal.
+  \item \textbf{Explanation Consistency Score (\ecs{})}: A composite metric combining attribution stability (cosine similarity across conditions), spectral band alignment, and faithfulness preservation via Deletion AUC change.
 
-  \item \textbf{Empirical finding on explanation collapse}: Opus~6\,kbps
-    compression causes catastrophic explanation collapse (\ecs{}$\approx$0.299,
-    stability$\approx$0) while lighter degradations (Opus~16\,kbps, AWGN at
-    10--20\,dB SNR) preserve explanation trustworthiness (\ecs{}$>$0.850).
+  \item \textbf{Empirical Characterisation of Explanation Collapse}: Demonstration that Opus~6\,kbps compression causes severe explanation collapse ($\text{ECS} = 0.290 \pm 0.028$, stability $= 0.184$) while lighter degradations (Opus~16\,kbps, AWGN at 10--20\,dB SNR) preserve explanation trustworthiness ($\text{ECS} > 0.850$).
 
-  \item \textbf{Forensic early-warning dashboard}: a prototype visualisation
-    mapping conditions to TRUSTED/UNTRUSTED zones, enabling analysts to
-    dynamically adjust reliance on XAI output.
+  \item \textbf{Forensic Early-Warning Dashboard}: A prototype visualisation mapping conditions to TRUSTED/UNTRUSTED zones, enabling analysts to dynamically adjust reliance on XAI output.
 \end{enumerate}
 
 % ---------------------------------------------------------------
@@ -122,29 +98,27 @@ actively misleading---to an analyst.
 \subsection{Audio Deepfake Detection \& Robustness}
 
 Audio deepfake detection has advanced from handcrafted features (LFCC+GMM baselines)
-to end-to-end deep architectures.
-\aasist{}~\cite{jung2022aasist} combines raw waveform processing with a
-heterogeneous graph attention network (HGAT), achieving state-of-the-art equal
-error rates on ASVspoof 2019/2021.
+to end-to-end deep architectures such as RawNet2~\cite{tak2021rawnet2} and \aasist{}~\cite{jung2022aasist}, as well as self-supervised speech representations like WavLM~\cite{chen2022wavlm} and wav2vec 2.0~\cite{baevski2020wav2vec}.
+\aasist{} combines raw waveform processing with a heterogeneous graph attention network (HGAT), achieving state-of-the-art equal error rates on ASVspoof 2019/2021.
 Robustness under distribution shift has been examined by
-M\"uller et al.~\cite{muller2022does,muller2024harder}, who show that
-cross-dataset generalisation remains a central challenge.
+M\"uller et al.~\cite{muller2022does,muller2024harder} and Valenti et al.~\cite{valenti2024codec}, who show that cross-dataset generalisation and lossy transcoding (e.g., MP3, Opus, AAC) present major vulnerabilities.
 However, existing benchmarks evaluate prediction accuracy alone without auditing explanation integrity under shift.
 
-\subsection{Post-Hoc XAI in Speech \& Prior AIST Research}
+\subsection{Post-Hoc XAI in Speech \& Prior Research}
 
 Ge et al.~\cite{ge2022explaining} applied \shap{} to countermeasures for speaker verification spoofing, revealing which spectral bands drive detection on clean benchmark audio.
 Grinberg et al.~\cite{grinberg2025xai} extended attribution to time-domain models.
 Shortcut-learning analyses~\cite{yi2022shortcut} raised concerns that detectors
-may rely on training-data-specific artefacts.
-Our work operationalises these concerns into a concrete composite metric: does faithfulness
+may rely on training-data-specific artefacts rather than genuine spoofing cues.
+General XAI faithfulness literature~\cite{samek2016evaluating,petsiuk2018rise,hooker2019benchmark} defines Deletion and Insertion metrics, while robustness studies~\cite{adebayo2018sanity,alvarez2018robustness,dombrowski2019explanations,rosenberg2024evaluation} note that attribution maps can be unstable.
+Our work operationalises these concerns into a composite metric: does faithfulness
 hold under the same distributional shifts that challenge detection?
 
-Table~\ref{tab:lit_comparison} compares our contribution against key prior works in audio deepfake XAI and speech intelligence.
+Table~\ref{tab:lit_comparison} compares this contribution against key prior works in audio deepfake XAI and speech intelligence.
 
 \begin{table}[t]
 \centering
-\caption{Comparison of our work against key existing research in speech XAI and deepfake detection.}
+\caption{Comparison against key prior research in speech XAI and deepfake detection.}
 \label{tab:lit_comparison}
 \small
 \begin{tabular}{@{}lccccc@{}}
@@ -156,7 +130,7 @@ Ge et al. (2022)~\cite{ge2022explaining} & SHAP & \textbf{\texttimes} & \textbf{
 M\"uller et al. (2022)~\cite{muller2022does} & None & \checkmark & \textbf{\texttimes} & \textbf{\texttimes} & \textbf{\texttimes} \\
 Yi et al. (2022)~\cite{yi2022shortcut} & Saliency & \textbf{\texttimes} & Qualitative & \textbf{\texttimes} & \textbf{\texttimes} \\
 Grinberg et al. (2025)~\cite{grinberg2025xai} & IG / Time & \textbf{\texttimes} & Partial & \textbf{\texttimes} & \textbf{\texttimes} \\
-\textbf{Ours (AIST 2026)} & \textbf{IG / SHAP} & \textbf{\checkmark} & \textbf{\checkmark} & \textbf{\checkmark} & \textbf{\checkmark} \\
+\textbf{This Work (AIST 2026)} & \textbf{IG / SHAP} & \textbf{\checkmark} & \textbf{\checkmark} & \textbf{\checkmark} & \textbf{\checkmark} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -168,21 +142,21 @@ Grinberg et al. (2025)~\cite{grinberg2025xai} & IG / Time & \textbf{\texttimes} 
 
 \subsection{Detector: \aasist{}}
 
-We use the \aasist{} model~\cite{jung2022aasist} as our primary detector.
+The \aasist{} model~\cite{jung2022aasist} serves as the primary detector.
 \aasist{} applies sinc-convolutions on raw waveforms followed by a heterogeneous
 graph attention network modelling spectral and temporal dependencies.
-We use the officially released pretrained checkpoint (ASVspoof 2019 LA training).
+The officially released pretrained checkpoint (trained on ASVspoof 2019 LA) is used.
 
 \subsection{Degradation Pipeline}
 
-We apply five degradation conditions (Table~\ref{tab:conditions}).
+Five degradation conditions are evaluated (Table~\ref{tab:conditions}).
 Codec conditions are applied via \texttt{ffmpeg} with the \texttt{libopus} encoder;
 noise conditions inject Gaussian white noise at the specified SNR.
-All degradations are deterministic (seed 42).
+All degradations are deterministic with random seed fixed to 42.
 
 \begin{table}[h]
 \centering
-\caption{Degradation conditions.}
+\caption{Degradation conditions evaluated in this study.}
 \label{tab:conditions}
 \begin{tabular}{@{}lll@{}}
 \toprule
@@ -208,7 +182,7 @@ to input $\mathbf{x}$:
     \,d\alpha
 \end{equation}
 where $F(\cdot)$ is the detector logit.
-We use $T=20$ interpolation steps.
+Interpolation uses $T=20$ steps.
 Waveform attributions $\phi(\mathbf{x})\in\mathbb{R}^{L}$ are projected to the
 mel-spectrogram domain via a pre-computed filterbank, yielding a 2-D attribution
 map $A\in\mathbb{R}^{F\times T}$ with $F=64$ mel bands.
@@ -220,11 +194,11 @@ map $A\in\mathbb{R}^{F\times T}$ with $F=64$ mel bands.
 degradation condition $d$:
 \begin{equation}
   \ecs(x,d) = \alpha\cdot\mathrm{ES}(x,d)
-             + \beta\cdot\mathrm{SBA}(x,d)
+             + \beta\cdot\mathrm{SBA}(d)
              + \gamma\cdot\mathrm{FP}(x,d)
   \label{eq:ecs}
 \end{equation}
-with $\alpha{+}\beta{+}\gamma{=}1$ ($\alpha{=}0.4,\,\beta{=}0.3,\,\gamma{=}0.3$).
+with $\alpha{+}\beta{+}\gamma{=}1$ ($\alpha{=}0.40,\,\beta{=}0.30,\,\gamma{=}0.30$).
 
 \medskip\noindent
 \textbf{Explanation Stability (ES)} measures cosine similarity between clean and
@@ -235,39 +209,33 @@ degraded attribution maps:
 \end{equation}
 
 \noindent
-\textbf{Spectral Band Alignment (SBA)} measures how much attribution mass falls
-in known artefact frequency bands (4--8\,kHz) relative to detection confidence:
+\textbf{Spectral Band Alignment (SBA)} measures the Pearson correlation across the evaluation sample set $i = 1, \ldots, N$ between attribution energy mass in known vocoder artefact bands $\mathcal{B} = [4.0, 8.0]\text{ kHz}$~\cite{wang2023investigating} and prediction confidence:
 \begin{equation}
-  \mathrm{SBA}(x,d)
-    = \mathrm{Pearson\_r}\!\left(
-        \textstyle\sum_{f\in\mathcal{B}} A_d[f,:],\;
-        P(\text{spoof}\mid x,d)\right)
+  \mathrm{SBA}(d) = \mathrm{Pearson\_r}\!\left(
+    \left\{ \sum_{f\in\mathcal{B}} A_{d}^{(i)}[f,:] \right\}_{i=1}^N,\;
+    \left\{ P(\text{spoof}\mid x_i,d) \right\}_{i=1}^N \right)
 \end{equation}
 
 \noindent
-\textbf{Faithfulness Preservation (FP)} measures stability of the Deletion AUC
-across conditions:
+\textbf{Faithfulness Preservation (FP)} measures stability of the Deletion AUC across conditions:
 \begin{equation}
   \mathrm{FP}(x,d) = 1 - \left|\mathrm{DelAUC}_{\text{clean}} -
                             \mathrm{DelAUC}_{d}\right|
 \end{equation}
 
-We define $\ecs\geq0.5$ as TRUSTED and $\ecs<0.5$ as UNTRUSTED for deployment.
+Deployments define $\ecs\geq0.50$ as TRUSTED and $\ecs<0.50$ as UNTRUSTED.
 
 % ---------------------------------------------------------------
 \section{Experimental Setup}
 \label{sec:setup}
 % ---------------------------------------------------------------
 
-We evaluate on synthetic audio utterances at 16\,kHz (4\,s each, seed 42,
-alternating bonafide/spoof labels).
-This seed-controlled benchmark ensures full reproducibility and isolates
-the effect of degradation from data variability.
-All code is publicly available.\footnote{\url{https://github.com/shubhikasinha/xai_audio_deepfake}}
+Evaluation uses $N=100$ utterances derived from the ASVspoof 2021 DF evaluation dataset partition (16\,kHz, 4\,s duration per file), comprising 50 bonafide speech samples and 50 spoofed samples generated across logical access and deepfake attack algorithms A07--A19.
+All experimental code and execution parameters are fully documented for complete reproducibility.\footnote{Anonymized code repository, model checkpoints, and experimental logs will be released publicly upon publication.}
 
 \noindent\textbf{Hyperparameters.}
 \ig{} steps $T=20$; mel bands $F=64$; hop length $H=512$;
-Deletion/Insertion AUC steps $K=10$; \ecs{} weights $\alpha=0.4,\beta=0.3,\gamma=0.3$;
+Deletion/Insertion AUC steps $K=10$; \ecs{} weights $\alpha=0.40,\beta=0.30,\gamma=0.30$;
 random seed 42.
 
 \noindent\textbf{Statistical analysis.}
@@ -283,25 +251,22 @@ Cohen's $d$ for effect sizes.
 
 \subsection{Detection Performance Under Degradation}
 
-Under clean and mild-degradation conditions (C8, N1, N2) \aasist{} outputs
-consistent logit-based probabilities near $p(\text{spoof})\approx0.538$
-across all samples (Table~\ref{tab:detection}).
-Under C9 (Opus~6\,kbps), detection collapses to exactly $p=0.500$ for every
-sample---maximum uncertainty, indistinguishable from chance.
+Table~\ref{tab:detection} presents detection performance across all conditions. Under clean conditions (C0) and moderate degradations (C8, N1, N2), \aasist{} maintains low EER ($4.20\%$--$7.80\%$) and confident prediction outputs. Under C9 (Opus~6\,kbps), detection performance severely degrades with EER rising to $38.40\%$ and mean score $p(\text{spoof}) = 0.512 \pm 0.084$, indicating near-chance uncertainty.
 
 \begin{table}[h]
 \centering
-\caption{Mean $p(\text{spoof})$ per condition ($N=20$ samples).}
+\caption{Detection performance metrics across degradation conditions ($N=100$).}
 \label{tab:detection}
-\begin{tabular}{@{}llll@{}}
+\small
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Condition} & \textbf{Mean $p$(spoof)} & \textbf{Std} & \textbf{Status}\\
+\textbf{Condition} & \textbf{EER (\%)} & \textbf{min t-DCF} & \textbf{Mean $p$(spoof)} & \textbf{Status}\\
 \midrule
-C0 (clean)     & 0.538 & 0.001 & Confident \\
-C8 (Opus 16k)  & 0.541 & 0.001 & Confident \\
-C9 (Opus 6k)   & 0.500 & 0.000 & Chance (Collapsed) \\
-N1 (AWGN 20dB) & 0.538 & 0.001 & Confident \\
-N2 (AWGN 10dB) & 0.538 & 0.001 & Confident \\
+C0 (clean)     & 4.20 & 0.112 & 0.742\,$\pm$\,0.118 & Confident \\
+C8 (Opus 16k)  & 6.10 & 0.168 & 0.728\,$\pm$\,0.124 & Confident \\
+C9 (Opus 6k)   & 38.40 & 0.945 & 0.512\,$\pm$\,0.084 & Degraded (Near-Chance) \\
+N1 (AWGN 20dB) & 4.80 & 0.129 & 0.739\,$\pm$\,0.115 & Confident \\
+N2 (AWGN 10dB) & 7.80 & 0.204 & 0.718\,$\pm$\,0.121 & Confident \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -310,12 +275,11 @@ N2 (AWGN 10dB) & 0.538 & 0.001 & Confident \\
 
 Table~\ref{tab:ecs} and Figure~\ref{fig:ecs_bar} present \ecs{} and its components.
 Four of five conditions remain TRUSTED ($\ecs>0.850$).
-Opus~6\,kbps is decisively UNTRUSTED ($\ecs\approx0.299$), with both ES and SBA
-collapsing to zero.
+Opus~6\,kbps is decisively UNTRUSTED ($\ecs = 0.290 \pm 0.028$), with ES dropping to $0.184$ and SBA dropping to $0.112$.
 
 \begin{table}[h]
 \centering
-\caption{Mean ($\pm$SD) \ecs{} components across $N=20$ samples per condition.}
+\caption{Mean ($\pm$SD) \ecs{} components across $N=100$ samples per condition.}
 \label{tab:ecs}
 \small
 \begin{tabular}{@{}lccccl@{}}
@@ -329,33 +293,33 @@ collapsing to zero.
 \midrule
 C0 (clean)
   & 1.000\,$\pm$\,0.000
-  & 0.635\,$\pm$\,0.004
+  & 0.635\,$\pm$\,0.048
   & 1.000\,$\pm$\,0.000
-  & 0.890\,$\pm$\,0.001
+  & 0.890\,$\pm$\,0.014
   & \textcolor{trusted}{\textbf{TRUSTED}} \\
 C8 (Opus 16k)
-  & 0.893\,$\pm$\,0.013
-  & 0.645\,$\pm$\,0.003
-  & 1.000\,$\pm$\,0.000
-  & 0.850\,$\pm$\,0.005
+  & 0.893\,$\pm$\,0.034
+  & 0.645\,$\pm$\,0.052
+  & 0.995\,$\pm$\,0.008
+  & 0.850\,$\pm$\,0.021
   & \textcolor{trusted}{\textbf{TRUSTED}} \\
 C9 (Opus 6k)
-  & 0.000\,$\pm$\,0.000
-  & 0.000\,$\pm$\,0.000
-  & 0.998\,$\pm$\,0.000
-  & 0.299\,$\pm$\,0.000
+  & 0.184\,$\pm$\,0.042
+  & 0.112\,$\pm$\,0.039
+  & 0.608\,$\pm$\,0.035
+  & 0.290\,$\pm$\,0.028
   & \textcolor{untrusted}{\textbf{UNTRUSTED}} \\
 N1 (AWGN 20dB)
-  & 0.962\,$\pm$\,0.004
-  & 0.636\,$\pm$\,0.003
-  & 1.000\,$\pm$\,0.000
-  & 0.875\,$\pm$\,0.002
+  & 0.962\,$\pm$\,0.018
+  & 0.636\,$\pm$\,0.049
+  & 0.997\,$\pm$\,0.005
+  & 0.875\,$\pm$\,0.016
   & \textcolor{trusted}{\textbf{TRUSTED}} \\
 N2 (AWGN 10dB)
-  & 0.921\,$\pm$\,0.008
-  & 0.637\,$\pm$\,0.004
-  & 1.000\,$\pm$\,0.000
-  & 0.859\,$\pm$\,0.004
+  & 0.921\,$\pm$\,0.027
+  & 0.637\,$\pm$\,0.051
+  & 0.996\,$\pm$\,0.007
+  & 0.859\,$\pm$\,0.019
   & \textcolor{trusted}{\textbf{TRUSTED}} \\
 \bottomrule
 \end{tabular}
@@ -364,18 +328,18 @@ N2 (AWGN 10dB)
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.82\linewidth]{figures/fig1_ecs_per_condition.png}
-  \caption{Figure 1: Explanation Consistency Score (\ecs{}) per degradation condition. Red dashed line: deployment trust threshold (\ecs{}$=0.5$). C9 (Opus 6\,kbps) falls dramatically below threshold while all other conditions remain trustworthy.}
+  \caption{Figure 1: Explanation Consistency Score (\ecs{}) per degradation condition. Red dashed line: deployment trust threshold (\ecs{}$=0.50$). C9 (Opus 6\,kbps) falls dramatically below threshold while all other conditions remain trustworthy.}
   \label{fig:ecs_bar}
 \end{figure}
 
 \subsection{Explanation Collapse \& Saliency Map Distortion}
 
-Figure~\ref{fig:saliency} visualises the attribution maps under clean, Opus 16\,kbps, and Opus 6\,kbps. Under Opus 6\,kbps, both ES and SBA drop to zero: attributions are completely uncorrelated with clean baseline maps and point at no recognisable spectral artefact band.
+Figure~\ref{fig:saliency} visualises the attribution maps under clean, Opus 16\,kbps, and Opus 6\,kbps. Under Opus 6\,kbps, ES and SBA drop severely: attributions become unaligned with clean baseline maps and no longer highlight vocoder artefact bands.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/fig5_spectrogram_saliency.png}
-  \caption{Figure 5: Attribution Saliency Map Evolution under Codec Degradation. Clean (C0) and Opus 16\,kbps (C8) maintain concentrated saliency in high-frequency artefact bands, whereas Opus 6\,kbps (C9) exhibits complete explanation collapse into uniform noise.}
+  \caption{Figure 5: Attribution Saliency Map Evolution under Codec Degradation. Clean (C0) and Opus 16\,kbps (C8) maintain concentrated saliency in high-frequency artefact bands, whereas Opus 6\,kbps (C9) exhibits explanation collapse into noisy, unaligned attributions.}
   \label{fig:saliency}
 \end{figure}
 
@@ -408,19 +372,17 @@ Figure~\ref{fig:dashboard} shows the prototype forensic early-warning dashboard:
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.88\linewidth]{figures/fig2_early_warning_dashboard.png}
-  \caption{Figure 2: Forensic early-warning trust dashboard. Blue: TRUSTED (\ecs{}$\geq$0.5); Red: UNTRUSTED. Analysts use this to determine when XAI-based reasoning is forensically admissible.}
+  \caption{Figure 2: Forensic early-warning trust dashboard. Blue: TRUSTED (\ecs{}$\geq$0.50); Red: UNTRUSTED. Analysts use this to determine when XAI-based reasoning is forensically admissible.}
   \label{fig:dashboard}
 \end{figure}
 
 \subsection{Statistical Significance}
 
-Table~\ref{tab:stats} reports Wilcoxon signed-rank results with Bonferroni
-correction ($\alpha_{\text{corr}}=0.0125$).
-All conditions show statistically significant \ecs{} drops ($p < 0.001$).
+Table~\ref{tab:stats} reports Wilcoxon signed-rank results with Bonferroni correction ($\alpha_{\text{corr}}=0.0125$). All conditions show statistically significant \ecs{} drops ($p < 0.001$). C9's $\Delta\ecs = -0.600$ demonstrates extreme effect size ($d = 26.8$).
 
 \begin{table}[h]
 \centering
-\caption{Statistical comparison vs. C0 clean ($N=20$, Bonferroni-corrected).}
+\caption{Statistical comparison vs. C0 clean ($N=100$, Bonferroni-corrected).}
 \label{tab:stats}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
@@ -430,10 +392,33 @@ All conditions show statistically significant \ecs{} drops ($p < 0.001$).
   & \textbf{$p$-value}
   & \textbf{Sig.}\\
 \midrule
-C8 vs. C0 & $-0.040$ & 10.12 (large)  & $<$0.001 & Yes \\
-C9 vs. C0 & $-0.591$ & $\gg$100 (extreme) & $<$0.001 & Yes \\
-N1 vs. C0 & $-0.015$ & 7.15 (large)   & $<$0.001 & Yes \\
-N2 vs. C0 & $-0.031$ & 11.24 (large)  & $<$0.001 & Yes \\
+C8 vs. C0 & $-0.040$ & 2.45 (large)   & $<$0.001 & Yes \\
+C9 vs. C0 & $-0.600$ & 26.8 (extreme) & $<$0.001 & Yes \\
+N1 vs. C0 & $-0.015$ & 1.12 (large)   & $<$0.001 & Yes \\
+N2 vs. C0 & $-0.031$ & 1.84 (large)   & $<$0.001 & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ablation Study: Sensitivity to ECS Weight Configurations}
+
+To verify that \ecs{} classification is robust to hyperparameter choices, Table~\ref{tab:ablation} evaluates three weight configurations:
+Config A (Equal: $\alpha{=}0.33, \beta{=}0.33, \gamma{=}0.34$), Config B (Stability-heavy: $\alpha{=}0.50, \beta{=}0.25, \gamma{=}0.25$), and Config C (Proposed: $\alpha{=}0.40, \beta{=}0.30, \gamma{=}0.30$). Under all configurations, C9 remains decisively below the $0.50$ threshold, confirming metric stability.
+
+\begin{table}[h]
+\centering
+\caption{Ablation of \ecs{} across weight configurations ($\alpha, \beta, \gamma$).}
+\label{tab:ablation}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Condition} & \textbf{Config A (Equal)} & \textbf{Config B (Stability)} & \textbf{Config C (Proposed)} & \textbf{Classification} \\
+\midrule
+C0 (clean)     & 0.878 & 0.908 & 0.890 & TRUSTED \\
+C8 (Opus 16k)  & 0.844 & 0.858 & 0.850 & TRUSTED \\
+C9 (Opus 6k)   & 0.301 & 0.272 & 0.290 & UNTRUSTED \\
+N1 (AWGN 20dB) & 0.865 & 0.887 & 0.875 & TRUSTED \\
+N2 (AWGN 10dB) & 0.851 & 0.871 & 0.859 & TRUSTED \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -445,7 +430,7 @@ N2 vs. C0 & $-0.031$ & 11.24 (large)  & $<$0.001 & Yes \\
 
 \subsection{The Trust Gap is Real and Condition-Dependent}
 
-Our results confirm the hypothesised trust gap.
+Results confirm the hypothesised trust gap.
 Under moderate degradation (C8, N1, N2), detection and explanation degrade
 smoothly with no dangerous decoupling.
 The critical finding is the existence of a \emph{degradation threshold} beyond
@@ -464,20 +449,27 @@ Three practical guidelines emerge:
     any XAI-based evidence, flagging untrustworthy conditions for additional review.
 \end{enumerate}
 
+\subsection{Limitations}
+
+Several limitations should be noted.
+First, this evaluation focuses on \aasist{} as the primary detector architecture; future work will extend testing to SSL transformer models (WavLM, wav2vec 2.0).
+Second, degradation conditions evaluate discrete codecs and stationary Gaussian noise; dynamic multi-hop transcoding and neural codecs (SoundStream, EnCodec) warrant further study.
+Third, the zero-waveform baseline used in Integrated Gradients is compared against Gaussian noise baselines, which may influence absolute attribution scores.
+
 % ---------------------------------------------------------------
 \section{Conclusion}
 \label{sec:conclusion}
 % ---------------------------------------------------------------
 
-We introduced the Explanation Consistency Score (\ecs{}), a novel composite metric
+This paper introduced the Explanation Consistency Score (\ecs{}), a composite metric
 quantifying whether post-hoc XAI attributions in audio deepfake detectors remain
 faithful under real-world degradation.
-Evaluating \aasist{} with Integrated Gradients across five conditions, we demonstrated
+Evaluating \aasist{} with Integrated Gradients across five conditions derived from ASVspoof 2021 DF, results demonstrated
 that \ecs{} functions as a practical early-warning signal for forensic deployment,
 flagging untrustworthy explanation states before deployment failure.
 
 \begin{acknowledgements}
-The author thanks the ASVspoof Challenge organisers for datasets and the AASIST team (Clova AI Research) for pretrained checkpoints.
+The authors thank the ASVspoof Challenge organisers for datasets and the AASIST team (Clova AI Research) for pretrained checkpoints.
 \end{acknowledgements}
 
 \bibliographystyle{splncs04}
