@@ -107,7 +107,7 @@ def compute_spectrogram(
         hop_length=hop_length,
         n_mels=n_mels,
         window_fn=lambda size, **kwargs: torch.hann_window(size, device=device),
-    )
+    ).to(device)
 
     mel_spec = mel_transform(waveform)
     log_mel_spec = torch.log(mel_spec + 1e-9)
