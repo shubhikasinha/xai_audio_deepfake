@@ -10,7 +10,7 @@
 
 ## Overview
 
-This repository contains the code, configurations, and experimental framework for our research paper submitted to the **8th International Conference on Artificial Intelligence and Speech Technology (AIST 2026)**, published in Springer CCIS (Scopus indexed).
+This repository contains the code, configurations, and experimental framework for our research paper submitted to the **8th International Conference on Artificial Intelligence and Speech Technology (AIST 2026)** under **Track 3: Generative and Learning-Based AI for Speech Technologies** (*Explainable, Trustworthy, and Responsible AI for Speech*), published in Springer CCIS (Scopus indexed).
 
 ### The Trust Gap Problem
 

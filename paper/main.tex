@@ -4,6 +4,7 @@
 % Under Real-World Codecs and Noise
 % AIST 2026 -- Springer CCIS -- Track 3: Generative and Learning-Based AI for Speech Technologies
 % Sub-topic: Explainable, Trustworthy, and Responsible AI for Speech
+% ============================================================
 \documentclass[runningheads]{llncs}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
@@ -52,8 +53,8 @@ five degradation conditions derived from ASVspoof 2021 DF, we introduce the \tex
 Score} (\ecs{}), a novel composite metric combining attribution stability,
 spectral band alignment, and faithfulness preservation.
 Our central finding is striking: Opus~6\,kbps compression causes complete
-explanation collapse (\ecs{}$\approx$0.30, stability$=0$) while higher-bitrate
-and noise conditions (\ecs{}$>$0.83) remain trustworthy.
+explanation collapse (\ecs{}$\approx$0.299, stability$=0$) while higher-bitrate
+and noise conditions (\ecs{}$>$0.850) remain trustworthy.
 We demonstrate that \ecs{} functions as a practical early-warning signal for forensic deployment,
 flagging untrustworthy conditions that traditional detection metrics alone cannot distinguish.
 \end{abstract}
@@ -104,9 +105,9 @@ actively misleading---to an analyst.
     a single deployable trustworthiness signal.
 
   \item \textbf{Empirical finding on explanation collapse}: Opus~6\,kbps
-    compression causes catastrophic explanation collapse (\ecs{}$\approx$0.30,
+    compression causes catastrophic explanation collapse (\ecs{}$\approx$0.299,
     stability$\approx$0) while lighter degradations (Opus~16\,kbps, AWGN at
-    10--20\,dB SNR) preserve explanation trustworthiness (\ecs{}$>$0.83).
+    10--20\,dB SNR) preserve explanation trustworthiness (\ecs{}$>$0.850).
 
   \item \textbf{Forensic early-warning dashboard}: a prototype visualisation
     mapping conditions to TRUSTED/UNTRUSTED zones, enabling analysts to
@@ -130,7 +131,7 @@ M\"uller et al.~\cite{muller2022does,muller2024harder}, who show that
 cross-dataset generalisation remains a central challenge.
 However, existing benchmarks evaluate prediction accuracy alone without auditing explanation integrity under shift.
 
-\subsection{Post-Hoc XAI in Speech & Prior AIST Research}
+\subsection{Post-Hoc XAI in Speech \& Prior AIST Research}
 
 Ge et al.~\cite{ge2022explaining} applied \shap{} to countermeasures for speaker verification spoofing, revealing which spectral bands drive detection on clean benchmark audio.
 Grinberg et al.~\cite{grinberg2025xai} extended attribution to time-domain models.
@@ -283,9 +284,9 @@ Cohen's $d$ for effect sizes.
 \subsection{Detection Performance Under Degradation}
 
 Under clean and mild-degradation conditions (C8, N1, N2) \aasist{} outputs
-consistent logit-based probabilities near $p(\text{spoof})\approx0.375$
+consistent logit-based probabilities near $p(\text{spoof})\approx0.538$
 across all samples (Table~\ref{tab:detection}).
-Under C9 (Opus~6\,kbps), detection collapses to exactly $p=0.50$ for every
+Under C9 (Opus~6\,kbps), detection collapses to exactly $p=0.500$ for every
 sample---maximum uncertainty, indistinguishable from chance.
 
 \begin{table}[h]
@@ -296,11 +297,11 @@ sample---maximum uncertainty, indistinguishable from chance.
 \toprule
 \textbf{Condition} & \textbf{Mean $p$(spoof)} & \textbf{Std} & \textbf{Status}\\
 \midrule
-C0 (clean)     & 0.375 & $<$0.001 & Confident \\
-C8 (Opus 16k)  & 0.373 & $<$0.001 & Confident \\
-C9 (Opus 6k)   & 0.500 & 0.000    & Chance (Collapsed) \\
-N1 (AWGN 20dB) & 0.375 & $<$0.001 & Confident \\
-N2 (AWGN 10dB) & 0.375 & $<$0.001 & Confident \\
+C0 (clean)     & 0.538 & 0.001 & Confident \\
+C8 (Opus 16k)  & 0.541 & 0.001 & Confident \\
+C9 (Opus 6k)   & 0.500 & 0.000 & Chance (Collapsed) \\
+N1 (AWGN 20dB) & 0.538 & 0.001 & Confident \\
+N2 (AWGN 10dB) & 0.538 & 0.001 & Confident \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -308,8 +309,8 @@ N2 (AWGN 10dB) & 0.375 & $<$0.001 & Confident \\
 \subsection{Explanation Consistency Score Results}
 
 Table~\ref{tab:ecs} and Figure~\ref{fig:ecs_bar} present \ecs{} and its components.
-Four of five conditions remain TRUSTED ($\ecs>0.83$).
-Opus~6\,kbps is decisively UNTRUSTED ($\ecs\approx0.30$), with both ES and SBA
+Four of five conditions remain TRUSTED ($\ecs>0.850$).
+Opus~6\,kbps is decisively UNTRUSTED ($\ecs\approx0.299$), with both ES and SBA
 collapsing to zero.
 
 \begin{table}[h]
@@ -328,33 +329,33 @@ collapsing to zero.
 \midrule
 C0 (clean)
   & 1.000\,$\pm$\,0.000
-  & 0.634\,$\pm$\,0.003
+  & 0.635\,$\pm$\,0.004
   & 1.000\,$\pm$\,0.000
   & 0.890\,$\pm$\,0.001
   & \textcolor{trusted}{\textbf{TRUSTED}} \\
 C8 (Opus 16k)
-  & 0.855\,$\pm$\,0.021
-  & 0.633\,$\pm$\,0.004
+  & 0.893\,$\pm$\,0.013
+  & 0.645\,$\pm$\,0.003
   & 1.000\,$\pm$\,0.000
-  & 0.832\,$\pm$\,0.008
+  & 0.850\,$\pm$\,0.005
   & \textcolor{trusted}{\textbf{TRUSTED}} \\
 C9 (Opus 6k)
   & 0.000\,$\pm$\,0.000
   & 0.000\,$\pm$\,0.000
-  & 1.000\,$\pm$\,0.000
-  & 0.300\,$\pm$\,0.001
+  & 0.998\,$\pm$\,0.000
+  & 0.299\,$\pm$\,0.000
   & \textcolor{untrusted}{\textbf{UNTRUSTED}} \\
 N1 (AWGN 20dB)
-  & 0.946\,$\pm$\,0.009
-  & 0.637\,$\pm$\,0.004
+  & 0.962\,$\pm$\,0.004
+  & 0.636\,$\pm$\,0.003
   & 1.000\,$\pm$\,0.000
-  & 0.869\,$\pm$\,0.003
+  & 0.875\,$\pm$\,0.002
   & \textcolor{trusted}{\textbf{TRUSTED}} \\
 N2 (AWGN 10dB)
-  & 0.886\,$\pm$\,0.015
-  & 0.635\,$\pm$\,0.005
+  & 0.921\,$\pm$\,0.008
+  & 0.637\,$\pm$\,0.004
   & 1.000\,$\pm$\,0.000
-  & 0.845\,$\pm$\,0.007
+  & 0.859\,$\pm$\,0.004
   & \textcolor{trusted}{\textbf{TRUSTED}} \\
 \bottomrule
 \end{tabular}
@@ -367,7 +368,7 @@ N2 (AWGN 10dB)
   \label{fig:ecs_bar}
 \end{figure}
 
-\subsection{Explanation Collapse & Saliency Map Distortion}
+\subsection{Explanation Collapse \& Saliency Map Distortion}
 
 Figure~\ref{fig:saliency} visualises the attribution maps under clean, Opus 16\,kbps, and Opus 6\,kbps. Under Opus 6\,kbps, both ES and SBA drop to zero: attributions are completely uncorrelated with clean baseline maps and point at no recognisable spectral artefact band.
 
@@ -378,7 +379,7 @@ Figure~\ref{fig:saliency} visualises the attribution maps under clean, Opus 16\,
   \label{fig:saliency}
 \end{figure}
 
-\subsection{Faithfulness Curves & Multi-Metric Evaluation}
+\subsection{Faithfulness Curves \& Multi-Metric Evaluation}
 
 Figure~\ref{fig:deletion} illustrates Deletion AUC trajectories across top-$k\%$ feature removal. Figure~\ref{fig:radar} presents the multi-metric radar comparison across Stability, Spectral Alignment, Faithfulness Preservation, and overall \ecs{}.
 
@@ -429,10 +430,10 @@ All conditions show statistically significant \ecs{} drops ($p < 0.001$).
   & \textbf{$p$-value}
   & \textbf{Sig.}\\
 \midrule
-C8 vs. C0 & $-0.058$ & 8.92 (large)   & $<$0.001 & Yes \\
-C9 vs. C0 & $-0.590$ & $\gg$100 (extreme) & $<$0.001 & Yes \\
-N1 vs. C0 & $-0.021$ & 5.83 (large)   & $<$0.001 & Yes \\
-N2 vs. C0 & $-0.045$ & 7.84 (large)   & $<$0.001 & Yes \\
+C8 vs. C0 & $-0.040$ & 10.12 (large)  & $<$0.001 & Yes \\
+C9 vs. C0 & $-0.591$ & $\gg$100 (extreme) & $<$0.001 & Yes \\
+N1 vs. C0 & $-0.015$ & 7.15 (large)   & $<$0.001 & Yes \\
+N2 vs. C0 & $-0.031$ & 11.24 (large)  & $<$0.001 & Yes \\
 \bottomrule
 \end{tabular}
 \end{table}

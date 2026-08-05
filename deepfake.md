@@ -1,6 +1,6 @@
 # Explanation Robustness as an Early-Warning Signal: Auditing Post-Hoc XAI in Audio Deepfake Detectors Under Real-World Codecs and Noise
 
-> **Target**: AIST 2026 (Springer CCIS, Scopus) — Track 3: Explainable, Trustworthy AI for Speech  
+> **Target**: AIST 2026 (Springer CCIS, Scopus) — Track 3: Generative and Learning-Based AI for Speech Technologies (Explainable, Trustworthy, and Responsible AI for Speech)  
 > **Deadline**: 15 August 2026 | **Venue**: IGDTUW, New Delhi, 26–27 Nov 2026  
 > **Acceptance Rate**: ~30% (71/235 at AIST 2023)  
 > **Estimated Acceptance Probability**: 45–60% (post-redesign)  
