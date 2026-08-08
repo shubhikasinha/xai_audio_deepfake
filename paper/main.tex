@@ -65,7 +65,7 @@ Yet, an unexamined vulnerability remains: \emph{do post-hoc explanations remain 
 
 When audio is compressed or transmitted through communication channels, subtle spectro-temporal artefacts are attenuated.
 This produces an \textbf{explanation trust gap}: a detector may maintain its spoof classification, yet its underlying saliency map may silently collapse, highlighting uninformative background bands or transmission artefacts rather than genuine vocoder cues.
-In judicial and forensic workflows, relying on an unfaithful explanation creates substantial risk.
+In judicial and forensic workflows, relying on an unfaithful explanation creates substantial risk. Importantly, the mathematical formulation of our composite explanation metric is architecture-agnostic: it operates directly on any detector's confidence scores and time-frequency attribution maps without requiring access to internal model parameters.
 
 \subsection*{Contributions}
 \begin{enumerate}
@@ -81,7 +81,7 @@ In judicial and forensic workflows, relying on an unfaithful explanation creates
 \end{enumerate}
 
 % ---------------------------------------------------------------
-\section{Related Work \& Positioning}
+\section{Related Work \& Comparative Positioning}
 \label{sec:related}
 % ---------------------------------------------------------------
 
@@ -128,7 +128,7 @@ Figure~\ref{fig:pipeline} illustrates the overall architecture, delineating the 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.96\linewidth]{figures/fig8_methodology_pipeline.png}
-  \caption{Figure 8: Dual-Path Framework. Top: Reference-based laboratory audit computing ground-truth \ecs{} from paired clean and degraded waveforms. Bottom: Deployable reference-free forensic triage proxy ($\ecsnr{}$) computing inference-time reliability directly from degraded audio without reference data.}
+  \caption{Dual-Path Framework. Top: Reference-based laboratory audit computing ground-truth \ecs{} from paired clean and degraded waveforms. Bottom: Deployable reference-free forensic triage proxy ($\ecsnr{}$) computing inference-time reliability directly from degraded audio without reference data.}
   \label{fig:pipeline}
 \end{figure}
 
@@ -173,7 +173,7 @@ We define \ecs{} as a composite index quantifying explanation trustworthiness un
              + \gamma\cdot\mathrm{FP}(x,d)
   \label{eq:ecs}
 \end{equation}
-with $\alpha=0.40, \beta=0.30, \gamma=0.30$ ($\alpha+\beta+\gamma=1.0$).
+with $\alpha=0.40, \beta=0.30, \gamma=0.30$ ($\alpha+\beta+\gamma=1.0$). Parameter $\alpha$ is weighted highest (0.40) because attribution stability ($\mathrm{ES}$) is the geometric prerequisite for the other two components to be meaningful---if the attribution map itself is spatially incoherent, spectral alignment ($\mathrm{SBA}$) and faithfulness preservation ($\mathrm{FP}$) computed upon it cannot be trusted regardless of their individual values; $\mathrm{SBA}$ and $\mathrm{FP}$ are weighted equally (0.30 each) as complementary functional checks.
 
 \begin{enumerate}
   \item \textbf{Explanation Stability (ES)}: Cosine similarity between clean attribution $A_{\text{clean}}$ and degraded attribution $A_d$:
@@ -208,7 +208,7 @@ where $\mathrm{SF}(A_d) = \frac{\exp(\frac{1}{|A_d|}\sum \ln(|A_d|+\epsilon))}{\
 \label{sec:setup}
 % ---------------------------------------------------------------
 
-The evaluation dataset comprises $N=100$ utterances (4.0\,s duration, 16\,kHz sampling rate) derived from the ASVspoof 2021 DF evaluation partition, containing 50 bonafide samples and 50 spoofed samples generated across logical access and deepfake attack algorithms A07--A19. Total evaluation encompasses 500 degraded audio instances across the 5 benchmark conditions. Experiments are conducted in PyTorch on an NVIDIA GPU with a batch size of 1. All code, checkpoints, and execution scripts are made available via an open-source anonymized repository.\footnote{Anonymized research code and evaluation logs: \url{https://anonymous.4open.science/r/xai_audio_deepfake-AIST2026}.}
+The evaluation dataset comprises $N=100$ utterances (4.0\,s duration, 16\,kHz sampling rate) derived from the ASVspoof 2021 DF evaluation partition, containing 50 bonafide samples and 50 spoofed samples generated across logical access and deepfake attack algorithms A07--A19. Total evaluation encompasses 500 degraded audio instances across the 5 benchmark conditions. Experiments are conducted in PyTorch on an NVIDIA GPU with a batch size of 1. All code, checkpoints, and execution scripts are fully documented for complete reproducibility.\footnote{Anonymized code repository, model checkpoints, and experimental logs will be released publicly upon publication.}
 
 % ---------------------------------------------------------------
 \section{Results \& Empirical Analysis}
@@ -216,7 +216,7 @@ The evaluation dataset comprises $N=100$ utterances (4.0\,s duration, 16\,kHz sa
 % ---------------------------------------------------------------
 
 \subsection{Detection Performance Under Degradation}
-Table~\ref{tab:detection} presents detection accuracy across conditions, separating bonafide and spoof score distributions. Under clean (C0) and moderate degradation (C8, N1, N2), \aasist{} maintains low equal error rates ($4.20\%$--$7.80\%$) and high accuracy ($92.2\%$--$95.8\%$). Under C9 (Opus 6\,kbps), detection performance severely degrades with $\text{EER} = 38.40\%$, $\text{min t-DCF} = 0.945$, and $\text{Accuracy} = 61.6\%$.
+Table~\ref{tab:detection} presents detection accuracy across conditions, separating bonafide and spoof score distributions on the balanced 50/50 test partition. Under clean (C0) and moderate degradation (C8, N1, N2), \aasist{} maintains low equal error rates ($4.20\%$--$7.80\%$) and high accuracy ($92.2\%$--$95.8\%$). Under C9 (Opus 6\,kbps), detection performance severely degrades with $\text{EER} = 38.40\%$, $\text{min t-DCF} = 0.945$, and $\text{Accuracy} = 61.6\%$.
 
 \begin{table}[t]
 \centering
@@ -225,13 +225,13 @@ Table~\ref{tab:detection} presents detection accuracy across conditions, separat
 \small
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
-\textbf{Condition} & \textbf{EER (\%)} & \textbf{min t-DCF} & \textbf{Accuracy (\%)} & \textbf{Mean $P_{\text{bonafide}}$} & \textbf{Mean $P_{\text{spoof}}$} & \textbf{95\% CI} \\
+\textbf{Condition} & \textbf{EER (\%)} & \textbf{min t-DCF} & \textbf{Accuracy (\%)} & \textbf{Mean $P_{\text{bonafide}}$} & \textbf{Mean $P_{\text{spoof}}$} & \textbf{Detection State} \\
 \midrule
-C0 (clean)     & 4.20 & 0.112 & 95.8 & 0.038\,$\pm$\,0.025 & 0.982\,$\pm$\,0.018 & [0.418, 0.602] \\
-C8 (Opus 16k)  & 6.10 & 0.168 & 93.9 & 0.059\,$\pm$\,0.034 & 0.965\,$\pm$\,0.027 & [0.423, 0.601] \\
-C9 (Opus 6k)   & 38.40 & 0.945 & 61.6 & 0.392\,$\pm$\,0.118 & 0.632\,$\pm$\,0.141 & [0.477, 0.547] \\
-N1 (AWGN 20dB) & 4.80 & 0.129 & 95.2 & 0.046\,$\pm$\,0.029 & 0.974\,$\pm$\,0.022 & [0.419, 0.601] \\
-N2 (AWGN 10dB) & 7.80 & 0.204 & 92.2 & 0.074\,$\pm$\,0.042 & 0.948\,$\pm$\,0.035 & [0.425, 0.597] \\
+C0 (clean)     & 4.20 & 0.112 & 95.8 & 0.038\,$\pm$\,0.025 & 0.982\,$\pm$\,0.018 & Confident \\
+C8 (Opus 16k)  & 6.10 & 0.168 & 93.9 & 0.059\,$\pm$\,0.034 & 0.965\,$\pm$\,0.027 & Confident \\
+C9 (Opus 6k)   & 38.40 & 0.945 & 61.6 & 0.392\,$\pm$\,0.118 & 0.632\,$\pm$\,0.141 & Severe Error Rate \\
+N1 (AWGN 20dB) & 4.80 & 0.129 & 95.2 & 0.046\,$\pm$\,0.029 & 0.974\,$\pm$\,0.022 & Confident \\
+N2 (AWGN 10dB) & 7.80 & 0.204 & 92.2 & 0.074\,$\pm$\,0.042 & 0.948\,$\pm$\,0.035 & Confident \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -293,7 +293,7 @@ N2 (AWGN 10dB)
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.84\linewidth]{figures/fig1_ecs_per_condition.png}
-  \caption{Figure 1: Continuous Opus Bitrate Sweep (6--32\,kbps) and fitted logistic sigmoid collapse curve ($b_0 = 9.24 \pm 0.58$\,kbps, $R^2 = 0.984$). The 0.50 boundary separates reliable from unfaithful regimes.}
+  \caption{Continuous Opus Bitrate Sweep (6--32\,kbps) and fitted logistic sigmoid collapse curve ($b_0 = 9.24 \pm 0.58$\,kbps, $R^2 = 0.984$). The 0.50 boundary separates reliable from unfaithful regimes.}
   \label{fig:ecs_bar}
 \end{figure}
 
@@ -330,14 +330,14 @@ Bonafide Speech (Reference) & 0.849\,$\pm$\,0.016 & 0.813\,$\pm$\,0.015 & 0.785\
 \begin{subfigure}[b]{0.48\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figures/fig3_deletion_curves.png}
-  \caption{Figure 3: Deletion and Insertion Curves.}
+  \caption{Deletion and Insertion Curves.}
   \label{fig:deletion}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.48\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figures/fig4_radar_chart.png}
-  \caption{Figure 4: Stratification Across Attack Families.}
+  \caption{Stratification Across Attack Families.}
   \label{fig:radar}
 \end{subfigure}
 \caption{Faithfulness curves demonstrating rapid drop in spoof probability for C0/C8/N1/N2 vs. flattened trajectory for C9, alongside invariant collapse across attack types.}
@@ -373,14 +373,14 @@ Attribution Stability (\textsc{ES} Alone) & 0.884 & 0.871 & Requires clean refer
 \begin{subfigure}[b]{0.48\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figures/fig6_roc_baseline_comparison.png}
-  \caption{Figure 6: ROC Baseline Curves.}
+  \caption{ROC Baseline Curves.}
   \label{fig:roc}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.48\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figures/fig7_proxy_scatter_correlation.png}
-  \caption{Figure 7: Proxy vs. Ground-Truth Scatter.}
+  \caption{Proxy vs. Ground-Truth Scatter.}
   \label{fig:scatter}
 \end{subfigure}
 \caption{ROC curve comparison showing $\ecsnr{}$ dominating simpler baselines (0.942 AUROC), alongside scatter correlation with ground-truth \ecs{} across 500 samples.}
@@ -393,19 +393,19 @@ Profiling computational runtime on an NVIDIA GPU yields an average latency of \t
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.88\linewidth]{figures/fig2_early_warning_dashboard.png}
-  \caption{Figure 2: Forensic early-warning dashboard. Blue: TRUSTED ($\ecs \ge 0.50$); Red: UNTRUSTED. Provides binary triage for judicial admissibility.}
+  \caption{Forensic early-warning dashboard. Blue: TRUSTED ($\ecs \ge 0.50$); Red: UNTRUSTED. Provides binary triage for judicial admissibility.}
   \label{fig:dashboard}
 \end{figure}
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.88\linewidth]{figures/fig5_spectrogram_saliency.png}
-  \caption{Figure 5: Time-frequency saliency maps under codec degradation. C0 and C8 focus on high-frequency vocoder harmonics ($[4, 8]$\,kHz); C9 collapses into diffuse noise.}
+  \caption{Time-frequency saliency maps under codec degradation. C0 and C8 focus on high-frequency vocoder harmonics ($[4, 8]$\,kHz); C9 collapses into diffuse noise.}
   \label{fig:heatmaps}
 \end{figure}
 
 \subsection{Statistical Significance \& Sensitivity Ablations}
-Table~\ref{tab:stats} details paired Wilcoxon signed-rank tests against C0 clean ($N=100$, Bonferroni correction $\alpha_{\text{corr}} = 0.0125$). All comparisons are statistically significant, with $p = 1.91 \times 10^{-6}$ representing the exact machine precision floor for $N=100$ when all paired differences share the same negative sign ($W=0$). Extreme effect size is observed for C9 ($d = 35.00$). Table~\ref{tab:ablation} confirms that across multiple weight combinations, condition classifications remain strictly invariant. Table~\ref{tab:extended_ablation} presents extended ablations across IG Riemann steps, baseline choices, mel-band counts, and a Kernel \shap{} sanity check ($N=20$, $\text{ES} = 0.194 \pm 0.015$ under C9), confirming that explanation collapse is an intrinsic model/signal phenomenon rather than an IG artifact.
+Table~\ref{tab:stats} details paired Wilcoxon signed-rank tests against C0 clean ($N=100$, Bonferroni correction $\alpha_{\text{corr}} = 0.0125$). All comparisons are statistically significant, with $p = 1.91 \times 10^{-6}$ representing the exact machine precision floor for $N=100$ when all paired differences share the same negative sign ($W=0$). Extreme effect size is observed for C9 ($d = 35.00$). Table~\ref{tab:ablation} confirms that across multiple weight combinations, condition classifications remain strictly invariant ($\mathbf{T}$ = Trusted, $\mathbf{U}$ = Untrusted). Table~\ref{tab:extended_ablation} presents extended ablations across IG Riemann steps, baseline choices, mel-band counts, and a Kernel \shap{} sanity check ($N=20$, $\text{ES} = 0.194 \pm 0.015$). For this sanity check, only $\text{ES}$ is substituted from Kernel \shap{} while $\text{SBA}$ and $\text{FP}$ retain their IG values ($\text{ECS} = 0.272$), confirming cross-method collapse.
 
 \begin{table}[t]
 \centering
@@ -426,18 +426,18 @@ N2 (AWGN 10dB) vs. C0 & $-0.064$ & 3.09 (large) & $1.91 \times 10^{-6}$ & Yes \\
 
 \begin{table}[t]
 \centering
-\caption{Ablation of \ecs{} across weight parameter configurations ($\alpha, \beta, \gamma$).}
+\caption{Ablation of \ecs{} across weight parameter configurations ($\alpha, \beta, \gamma$). Status: $\mathbf{T}$ = Trusted ($\ge 0.50$), $\mathbf{U}$ = Untrusted ($< 0.50$).}
 \label{tab:ablation}
 \small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Condition} & \textbf{Equal (0.33, 0.33, 0.34)} & \textbf{Stability (0.50, 0.25, 0.25)} & \textbf{Proposed (0.40, 0.30, 0.30)} & \textbf{Classification} \\
+\textbf{Condition} & \textbf{Equal (0.33, 0.33, 0.34)} & \textbf{Stability (0.50, 0.25, 0.25)} & \textbf{Proposed (0.40, 0.30, 0.30)} & \textbf{Status} \\
 \midrule
-C0 (clean)     & 0.833 & 0.875 & 0.850 & TRUSTED \\
-C8 (Opus 16k)  & 0.797 & 0.820 & 0.806 & TRUSTED \\
-C9 (Opus 6k)   & 0.279 & 0.252 & 0.268 & UNTRUSTED \\
-N1 (AWGN 20dB) & 0.784 & 0.805 & 0.793 & TRUSTED \\
-N2 (AWGN 10dB) & 0.780 & 0.797 & 0.786 & TRUSTED \\
+C0 (clean)     & 0.833 & 0.875 & 0.850 & $\mathbf{T}$ \\
+C8 (Opus 16k)  & 0.797 & 0.820 & 0.806 & $\mathbf{T}$ \\
+C9 (Opus 6k)   & 0.279 & 0.252 & 0.268 & $\mathbf{U}$ \\
+N1 (AWGN 20dB) & 0.784 & 0.805 & 0.793 & $\mathbf{T}$ \\
+N2 (AWGN 10dB) & 0.780 & 0.797 & 0.786 & $\mathbf{T}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -479,7 +479,7 @@ N2 (AWGN 10dB) & 0.780 & 0.797 & 0.786 & TRUSTED \\
 
 \subsection{Mechanistic Cause of Attribution Collapse}
 The empirical collapse threshold at $b_0 \approx 9.2$\,kbps directly reflects Opus's psychoacoustic band suppression: below 8\,kbps, the encoder quantises and truncates spectral content above 4\,kHz.
-Because \aasist{} relies heavily on high-frequency vocoder discontinuities ($[4, 8]$\,kHz) for spoof discrimination, this truncation eliminates the gradient signal responsible for feature attribution, resulting in diffuse, uninformative saliency maps (Figure~\ref{fig:heatmaps}).
+Because \aasist{} relies heavily on high-frequency vocoder discontinuities ($[4, 8]$\,kHz) for spoof discrimination, this truncation eliminates the gradient signal responsible for feature attribution, resulting in diffuse, uninformative saliency maps (Figure~\ref{fig:heatmaps}). In forensic practice, the proposed reference-free proxy $\ecsnr{}$ acts as an essential automated guardrail, preventing collapsed, misleading saliency maps from reaching forensic examiners or judicial adjudicators.
 
 \subsection{Limitations \& Future Directions}
 This study evaluated the \aasist{} architecture on discrete codecs and stationary Gaussian noise.
