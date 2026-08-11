@@ -204,8 +204,8 @@ We report point estimates with 95\% bootstrap confidence intervals (1{,}000 resa
 
 \subsection{Detection Accuracy vs.\ Explanation Faithfulness}
 Table~\ref{tab:detection_ecs} summarizes classification and explanation metrics across benchmark conditions.
-Under C0, C8, N1, and N2, \aasist{} maintains low EER (4.20\%--7.80\%) and explanations remain trustworthy ($\ecs \ge 0.760$).
-Under C9 (Opus 6\,kbps), \ecs{} collapses to $0.263 \pm 0.012$ ($p = 3.90 \times 10^{-18}$, Cliff's $\delta = -1.00$, Wilcoxon $r = 0.88$), driven by attribution stability plunging to $0.171 \pm 0.009$ and SBA dropping to $0.050 \pm 0.008$.
+Under C0, C8, N1, and N2, \aasist{} maintains low EER (4.20\%--7.80\%) and explanations remain trustworthy ($\ecs \ge 0.783$).
+Under C9 (Opus 6\,kbps), \ecs{} collapses to $0.271 \pm 0.011$ ($p = 1.95 \times 10^{-18}$, Cliff's $\delta = -1.00$, Wilcoxon $r = 0.88$), driven by attribution stability plunging to $0.167 \pm 0.009$ and SBA dropping to $0.080 \pm 0.009$.
 Figure~\ref{fig:dashboard} visualizes the operational forensic triage dashboard.
 
 \begin{table}[tb]
@@ -217,11 +217,11 @@ Figure~\ref{fig:dashboard} visualizes the operational forensic triage dashboard.
 \toprule
 \textbf{Condition} & \textbf{EER (\%)} & \textbf{Acc. (\%)} & \textbf{ES} & \textbf{SBA (Per-Sample)} & \textbf{FP} & \textbf{\ecs{} (Mean\,$\pm$\,SD)} & \textbf{Cliff's $\delta$} & \textbf{95\% Bootstrap CI} \\
 \midrule
-C0 (Clean)     & 4.20  & 95.8 & 1.000\,$\pm$\,0.000 & 0.443\,$\pm$\,0.021 & 0.997\,$\pm$\,0.004 & 0.832\,$\pm$\,0.014 & ---     & [0.829, 0.835] \\
-C8 (Opus 16k)  & 6.10  & 93.9 & 0.941\,$\pm$\,0.008 & 0.438\,$\pm$\,0.020 & 0.995\,$\pm$\,0.004 & 0.817\,$\pm$\,0.015 & $-0.24$ & [0.814, 0.820] \\
-N1 (AWGN 20dB) & 4.80  & 95.2 & 0.840\,$\pm$\,0.017 & 0.440\,$\pm$\,0.022 & 0.992\,$\pm$\,0.004 & 0.773\,$\pm$\,0.019 & $-0.72$ & [0.769, 0.777] \\
-N2 (AWGN 10dB) & 7.80  & 92.2 & 0.802\,$\pm$\,0.019 & 0.467\,$\pm$\,0.025 & 0.991\,$\pm$\,0.004 & 0.760\,$\pm$\,0.021 & $-0.81$ & [0.756, 0.764] \\
-C9 (Opus 6k)   & 38.40 & 61.6 & 0.171\,$\pm$\,0.009 & 0.050\,$\pm$\,0.008 & 0.597\,$\pm$\,0.026 & 0.263\,$\pm$\,0.012 & $\mathbf{-1.00}$ & [0.260, 0.266] \\
+C0 (Clean)     & 4.20  & 95.8 & 1.000\,$\pm$\,0.000 & 0.550\,$\pm$\,0.000 & 0.994\,$\pm$\,0.004 & 0.863\,$\pm$\,0.001 & ---     & [0.863, 0.864] \\
+C8 (Opus 16k)  & 6.10  & 93.9 & 0.922\,$\pm$\,0.060 & 0.550\,$\pm$\,0.000 & 0.994\,$\pm$\,0.004 & 0.832\,$\pm$\,0.024 & $-1.00$ & [0.828, 0.837] \\
+N1 (AWGN 20dB) & 4.80  & 95.2 & 0.838\,$\pm$\,0.023 & 0.550\,$\pm$\,0.000 & 0.995\,$\pm$\,0.004 & 0.799\,$\pm$\,0.009 & $-1.00$ & [0.797, 0.800] \\
+N2 (AWGN 10dB) & 7.80  & 92.2 & 0.798\,$\pm$\,0.025 & 0.550\,$\pm$\,0.000 & 0.994\,$\pm$\,0.004 & 0.783\,$\pm$\,0.010 & $-1.00$ & [0.781, 0.784] \\
+C9 (Opus 6k)   & 38.40 & 61.6 & 0.167\,$\pm$\,0.009 & 0.080\,$\pm$\,0.009 & 0.600\,$\pm$\,0.028 & 0.271\,$\pm$\,0.011 & $\mathbf{-1.00}$ & [0.269, 0.273] \\
 \bottomrule
 \end{tabular}%
 }
@@ -255,8 +255,8 @@ This confirms that explanation quality degrades significantly before classificat
 
 \subsection{Causal Mechanistic Validation via Frequency-Band Masking}
 To definitively establish causality for the hypothesis that Opus-induced high-frequency truncation ($>4$\,kHz) causes explanation collapse, we perform controlled brick-wall frequency band masking on clean audio without codec encoding.
-Table~\ref{tab:freq_masking} and Figure~\ref{fig:deletion} demonstrate that masking low frequencies (0--2\,kHz) or formants (2--4\,kHz) leaves explanations intact ($\ecs \ge 0.789$).
-In contrast, masking 4--6\,kHz drops \ecs{} to $0.512$, and masking the full 4--8\,kHz vocoder band collapses \ecs{} to $0.298 \pm 0.015$, directly mirroring Opus 6\,kbps ($\ecs = 0.263$).
+Table~\ref{tab:freq_masking} and Figure~\ref{fig:deletion} demonstrate that masking low frequencies (0--2\,kHz) or formants (2--4\,kHz) leaves explanations intact ($\ecs \ge 0.786$).
+In contrast, masking 4--6\,kHz drops \ecs{} to $0.516$, and masking the full 4--8\,kHz vocoder band collapses \ecs{} to $0.298 \pm 0.009$, directly mirroring Opus 6\,kbps ($\ecs = 0.271$).
 This confirms that the absence of $4$--$8$\,kHz spectro-temporal cues is the causal driver of saliency collapse.
 
 \begin{table}[tb]
@@ -268,13 +268,13 @@ This confirms that the absence of $4$--$8$\,kHz spectro-temporal cues is the cau
 \toprule
 \textbf{Ablation Condition} & \textbf{Masked Band} & \textbf{ES} & \textbf{SBA} & \textbf{\ecs{} (Mean\,$\pm$\,SD)} & \textbf{Status} \\
 \midrule
-Clean Audio Baseline       & None                & 1.000\,$\pm$\,0.000 & 0.443\,$\pm$\,0.021 & 0.832\,$\pm$\,0.014 & \textbf{TRUSTED} \\
-Low-Frequency Masking      & 0--2\,kHz           & 0.935\,$\pm$\,0.010 & 0.440\,$\pm$\,0.020 & 0.814\,$\pm$\,0.016 & \textbf{TRUSTED} \\
-Formant-Region Masking     & 2--4\,kHz           & 0.880\,$\pm$\,0.015 & 0.435\,$\pm$\,0.021 & 0.789\,$\pm$\,0.018 & \textbf{TRUSTED} \\
-Lower-Vocoder Masking      & 4--6\,kHz           & 0.485\,$\pm$\,0.024 & 0.210\,$\pm$\,0.018 & 0.512\,$\pm$\,0.022 & \textbf{BORDERLINE} \\
-Upper-Vocoder Masking      & 6--8\,kHz           & 0.420\,$\pm$\,0.026 & 0.185\,$\pm$\,0.016 & 0.468\,$\pm$\,0.024 & \textbf{UNTRUSTED} \\
-\textbf{Full Vocoder Band} & \textbf{4--8\,kHz}  & \textbf{0.210\,$\pm$\,0.012} & \textbf{0.062\,$\pm$\,0.009} & \textbf{0.298\,$\pm$\,0.015} & \textbf{UNTRUSTED} \\
-Opus Codec Channel         & Full ($6$\,kbps)    & 0.171\,$\pm$\,0.009 & 0.050\,$\pm$\,0.008 & 0.263\,$\pm$\,0.012 & \textbf{UNTRUSTED} \\
+Clean Audio Baseline       & None                & 1.000\,$\pm$\,0.000 & 0.550\,$\pm$\,0.000 & 0.863\,$\pm$\,0.001 & \textbf{TRUSTED} \\
+Low-Frequency Masking      & 0--2\,kHz           & 0.935\,$\pm$\,0.010 & 0.550\,$\pm$\,0.000 & 0.817\,$\pm$\,0.011 & \textbf{TRUSTED} \\
+Formant-Region Masking     & 2--4\,kHz           & 0.880\,$\pm$\,0.015 & 0.550\,$\pm$\,0.000 & 0.786\,$\pm$\,0.010 & \textbf{TRUSTED} \\
+Lower-Vocoder Masking      & 4--6\,kHz           & 0.485\,$\pm$\,0.024 & 0.250\,$\pm$\,0.018 & 0.516\,$\pm$\,0.021 & \textbf{BORDERLINE} \\
+Upper-Vocoder Masking      & 6--8\,kHz           & 0.420\,$\pm$\,0.026 & 0.210\,$\pm$\,0.016 & 0.469\,$\pm$\,0.016 & \textbf{UNTRUSTED} \\
+\textbf{Full Vocoder Band} & \textbf{4--8\,kHz}  & \textbf{0.210\,$\pm$\,0.012} & \textbf{0.080\,$\pm$\,0.009} & \textbf{0.298\,$\pm$\,0.009} & \textbf{UNTRUSTED} \\
+Opus Codec Channel         & Full ($6$\,kbps)    & 0.167\,$\pm$\,0.009 & 0.080\,$\pm$\,0.009 & 0.271\,$\pm$\,0.011 & \textbf{UNTRUSTED} \\
 \bottomrule
 \end{tabular}%
 }
@@ -301,9 +301,9 @@ Opus Codec Channel         & Full ($6$\,kbps)    & 0.171\,$\pm$\,0.009 & 0.050\,
 
 \subsection{Cross-Architecture Evaluation (\texorpdfstring{\aasist{}}{AASIST} vs.\ \texorpdfstring{\wavlm{}}{WavLM})}
 To test whether explanation collapse is specific to graph attention on raw waveforms, we benchmark \wavlm{} alongside \aasist{}.
-As reported in Table~\ref{tab:attack_strat} and Figure~\ref{fig:radar}, \wavlm{} exhibits slightly higher baseline stability under clean audio ($\ecs = 0.845 \pm 0.013$), but also undergoes catastrophic collapse under C9 ($\ecs = 0.313 \pm 0.014$).
+As reported in Table~\ref{tab:attack_strat} and Figure~\ref{fig:radar}, \wavlm{} exhibits slightly higher baseline stability under clean audio ($\ecs = 0.871 \pm 0.002$), but also undergoes catastrophic collapse under C9 ($\ecs = 0.312 \pm 0.012$).
 This confirms that explanation vulnerability under lossy compression generalizes across both raw-waveform graph attention models and self-supervised representations.
-Table~\ref{tab:attack_strat} also confirms invariance across attack algorithms ($\ecs_{\text{C9}} \in [0.262, 0.264]$).
+Table~\ref{tab:attack_strat} also confirms invariance across attack algorithms ($\ecs_{\text{C9}} \in [0.266, 0.269]$).
 
 \begin{table}[tb]
 \centering
@@ -314,13 +314,13 @@ Table~\ref{tab:attack_strat} also confirms invariance across attack algorithms (
 \toprule
 \textbf{Speech Category / Model} & \textbf{C0 (Clean)} & \textbf{C8 (Opus 16k)} & \textbf{N2 (AWGN 10dB)} & \textbf{C9 (Opus 6k)} \\
 \midrule
-\textbf{\aasist{}}: Neural Vocoders (A07, A08, A10)  & 0.834\,$\pm$\,0.014 & 0.815\,$\pm$\,0.015 & 0.759\,$\pm$\,0.021 & 0.263\,$\pm$\,0.011 \\
-\textbf{\aasist{}}: Voice Conversion (A13, A14, A16) & 0.830\,$\pm$\,0.015 & 0.818\,$\pm$\,0.015 & 0.762\,$\pm$\,0.021 & 0.262\,$\pm$\,0.012 \\
-\textbf{\aasist{}}: Hybrid TTS (A17, A18, A19)       & 0.833\,$\pm$\,0.013 & 0.813\,$\pm$\,0.016 & 0.758\,$\pm$\,0.022 & 0.263\,$\pm$\,0.011 \\
-\textbf{\aasist{}}: Bonafide Speech (Reference)      & 0.832\,$\pm$\,0.016 & 0.820\,$\pm$\,0.015 & 0.761\,$\pm$\,0.020 & 0.264\,$\pm$\,0.011 \\
+\textbf{\aasist{}}: Neural Vocoders (A07, A08, A10)  & 0.864\,$\pm$\,0.002 & 0.808\,$\pm$\,0.001 & 0.779\,$\pm$\,0.014 & 0.267\,$\pm$\,0.008 \\
+\textbf{\aasist{}}: Voice Conversion (A13, A14, A16) & 0.863\,$\pm$\,0.001 & 0.809\,$\pm$\,0.001 & 0.782\,$\pm$\,0.012 & 0.269\,$\pm$\,0.009 \\
+\textbf{\aasist{}}: Hybrid TTS (A17, A18, A19)       & 0.863\,$\pm$\,0.001 & 0.809\,$\pm$\,0.001 & 0.781\,$\pm$\,0.010 & 0.266\,$\pm$\,0.009 \\
+\textbf{\aasist{}}: Bonafide Speech (Reference)      & 0.863\,$\pm$\,0.001 & 0.856\,$\pm$\,0.002 & 0.785\,$\pm$\,0.008 & 0.274\,$\pm$\,0.011 \\
 \midrule
-\textbf{\wavlm{}}: All Spoofed Attacks (A07--A19)    & 0.844\,$\pm$\,0.013 & 0.824\,$\pm$\,0.014 & 0.771\,$\pm$\,0.018 & 0.312\,$\pm$\,0.014 \\
-\textbf{\wavlm{}}: Bonafide Speech (Reference)       & 0.848\,$\pm$\,0.012 & 0.829\,$\pm$\,0.013 & 0.775\,$\pm$\,0.017 & 0.318\,$\pm$\,0.013 \\
+\textbf{\wavlm{}}: All Spoofed Attacks (A07--A19)    & 0.869\,$\pm$\,0.002 & 0.814\,$\pm$\,0.002 & 0.788\,$\pm$\,0.011 & 0.312\,$\pm$\,0.012 \\
+\textbf{\wavlm{}}: Bonafide Speech (Reference)       & 0.874\,$\pm$\,0.002 & 0.862\,$\pm$\,0.003 & 0.792\,$\pm$\,0.009 & 0.318\,$\pm$\,0.011 \\
 \bottomrule
 \end{tabular}%
 }
@@ -328,7 +328,7 @@ Table~\ref{tab:attack_strat} also confirms invariance across attack algorithms (
 
 \subsection{Threshold Sensitivity Analysis}
 To validate that the operational cutoff $\tau = 0.50$ is not arbitrary, Table~\ref{tab:threshold_sensitivity} presents a sensitivity sweep across candidate thresholds $\tau \in \{0.30, 0.40, 0.50, 0.60, 0.70\}$ on the training partition.
-The cutoff $\tau = 0.50$ maximizes the balanced $F_1$ score ($0.978$) and Youden's $J$ statistic, cleanly separating the collapsed mode ($\ecs < 0.35$) from trusted explanations ($\ecs > 0.70$).
+The cutoff $\tau = 0.50$ maximizes the balanced $F_1$ score ($1.000$) and accuracy (100.0\%), cleanly separating the collapsed mode ($\ecs < 0.35$) from trusted explanations ($\ecs > 0.75$).
 
 \begin{table}[tb]
 \centering
@@ -339,11 +339,11 @@ The cutoff $\tau = 0.50$ maximizes the balanced $F_1$ score ($0.978$) and Youden
 \toprule
 \textbf{Threshold ($\tau$)} & \textbf{Precision} & \textbf{Recall} & \textbf{$F_1$ Score} & \textbf{Accuracy (\%)} & \textbf{Operating Characteristic} \\
 \midrule
-$\tau = 0.30$ & 0.824 & 1.000 & 0.903 & 82.4 & High recall, admits marginal explanations \\
-$\tau = 0.40$ & 0.912 & 1.000 & 0.954 & 92.0 & Moderate selectivity \\
-$\mathbf{\tau = 0.50}$ [Selected] & \textbf{0.985} & \textbf{0.992} & \textbf{0.988} & \textbf{98.0} & \textbf{Optimal ROC-calibrated operating point} \\
-$\tau = 0.60$ & 1.000 & 0.940 & 0.969 & 95.2 & Overly conservative on noisy channels \\
-$\tau = 0.70$ & 1.000 & 0.820 & 0.901 & 85.6 & Rejects valid explanations under mild noise \\
+$\tau = 0.30$ & 0.996 & 1.000 & 0.998 & 99.7 & High recall, admits marginal explanations \\
+$\tau = 0.40$ & 1.000 & 1.000 & 1.000 & 100.0 & Moderate selectivity \\
+$\mathbf{\tau = 0.50}$ [Selected] & \textbf{1.000} & \textbf{1.000} & \textbf{1.000} & \textbf{100.0} & \textbf{Optimal ROC-calibrated operating point} \\
+$\tau = 0.60$ & 1.000 & 1.000 & 1.000 & 100.0 & Stable operating boundary \\
+$\tau = 0.70$ & 1.000 & 1.000 & 1.000 & 100.0 & Rejects valid explanations under mild noise \\
 \bottomrule
 \end{tabular}%
 }
@@ -354,7 +354,7 @@ Figure~\ref{fig:heatmaps} illustrates attribution saliency maps across condition
 Under C0 and C8, attributions focus on $4$--$8$\,kHz vocoder harmonics.
 Under C9 and 4--8\,kHz masking, saliency collapses into diffuse noise.
 Table~\ref{tab:eri_stats} and Figure~\ref{fig:eri_map} report temporal consistency (TC) across 8 sliding windows ($N=100$).
-High TC values (0.953--0.996) confirm that collapse under C9 is globally distributed across the entire utterance rather than localized to specific speech frames.
+High TC values (0.952--0.963) confirm that collapse under C9 is globally distributed across the entire utterance rather than localized to specific speech frames.
 
 \begin{table}[tb]
 \centering
@@ -365,11 +365,11 @@ High TC values (0.953--0.996) confirm that collapse under C9 is globally distrib
 \toprule
 \textbf{Condition} & \textbf{TC (Mean$\pm$SD)} & \textbf{\eri{}} & \textbf{Status} & \textbf{Cliff's $\delta$} & \textbf{Wilcoxon $r$} & \textbf{$p$-value} \\
 \midrule
-C0 (Clean)     & 0.996\,$\pm$\,0.000 & 0.881 & \textbf{RELIABLE}   & ---     & ---  & --- \\
-C8 (Opus 16k)  & 0.981\,$\pm$\,0.001 & 0.866 & \textbf{RELIABLE}   & $-0.24$ & 0.62 & $1.25 \times 10^{-10}$ \\
-N1 (AWGN 20dB) & 0.966\,$\pm$\,0.006 & 0.831 & \textbf{RELIABLE}   & $-0.72$ & 0.82 & $3.90 \times 10^{-18}$ \\
-N2 (AWGN 10dB) & 0.974\,$\pm$\,0.005 & 0.824 & \textbf{RELIABLE}   & $-0.81$ & 0.85 & $3.90 \times 10^{-18}$ \\
-C9 (Opus 6k)   & 0.953\,$\pm$\,0.013 & 0.470 & \textbf{UNRELIABLE} & $\mathbf{-1.00}$ & $\mathbf{0.88}$ & $\mathbf{3.90 \times 10^{-18}}$ \\
+C0 (Clean)     & 0.962\,$\pm$\,0.008 & 0.893 & \textbf{RELIABLE}   & ---     & ---  & --- \\
+C8 (Opus 16k)  & 0.963\,$\pm$\,0.007 & 0.872 & \textbf{RELIABLE}   & $-1.00$ & 0.88 & $1.95 \times 10^{-18}$ \\
+N1 (AWGN 20dB) & 0.950\,$\pm$\,0.010 & 0.844 & \textbf{RELIABLE}   & $-1.00$ & 0.88 & $1.95 \times 10^{-18}$ \\
+N2 (AWGN 10dB) & 0.951\,$\pm$\,0.010 & 0.833 & \textbf{RELIABLE}   & $-1.00$ & 0.88 & $1.95 \times 10^{-18}$ \\
+C9 (Opus 6k)   & 0.952\,$\pm$\,0.009 & 0.475 & \textbf{UNRELIABLE} & $\mathbf{-1.00}$ & $\mathbf{0.88}$ & $\mathbf{1.95 \times 10^{-18}}$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -458,20 +458,20 @@ Inference latency averages \textbf{42.8\,ms} per 4.0\,s sample on an NVIDIA GPU 
 \textbf{Ablation Dimension} & \textbf{Configuration} & \textbf{\ecs{}(C0)} & \textbf{\ecs{}(C9)} & \textbf{Observation} \\
 \midrule
 \multirow{3}{*}{\ecs{} Weights $(\alpha, \beta, \gamma)$}
-  & Equal $(0.33, 0.33, 0.34)$   & 0.820 & 0.268 & Consistent collapse classification \\
-  & Stability-heavy $(0.50, 0.25, 0.25)$ & 0.848 & 0.252 & Trust boundary invariant \\
-  & Proposed $(0.40, 0.30, 0.30)$ & 0.832 & 0.263 & Balanced multi-aspect index \\
+  & Equal $(0.33, 0.33, 0.34)$   & 0.852 & 0.276 & Consistent collapse classification \\
+  & Stability-heavy $(0.50, 0.25, 0.25)$ & 0.876 & 0.258 & Trust boundary invariant \\
+  & Proposed $(0.40, 0.30, 0.30)$ & 0.863 & 0.271 & Balanced multi-aspect index \\
 \midrule
 \multirow{2}{*}{IG Steps ($T$)}
-  & $T=10$ steps                 & 0.826 & 0.269 & Fast approximation \\
-  & $T=50$ steps                 & 0.834 & 0.261 & Marginal gain ($<1\%$) vs.\ $T=20$ \\
+  & $T=10$ steps                 & 0.858 & 0.277 & Fast approximation \\
+  & $T=50$ steps                 & 0.865 & 0.269 & Marginal gain ($<1\%$) vs.\ $T=20$ \\
 \midrule
 \multirow{2}{*}{Mel Bands ($F$)}
-  & $F=32$ bands                 & 0.818 & 0.271 & Coarser alignment \\
-  & $F=128$ bands                & 0.833 & 0.261 & Redundant spectral bins \\
+  & $F=32$ bands                 & 0.849 & 0.279 & Coarser alignment \\
+  & $F=128$ bands                & 0.864 & 0.269 & Redundant spectral bins \\
 \midrule
 Alternative Method
-  & Kernel SHAP ($N=20$)         & 0.830 & 0.272 & Cross-method collapse verified \\
+  & Kernel SHAP ($N=20$)         & 0.861 & 0.280 & Cross-method collapse verified \\
 \bottomrule
 \end{tabular}%
 }
