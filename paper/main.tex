@@ -9,15 +9,21 @@
 \documentclass[runningheads]{llncs}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
+
+% Safe amsmath loading for llncs
+\let\accentvec\vec
 \usepackage{amsmath,amssymb}
+\let\spvec\vec
+\let\vec\accentvec
+
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{xcolor}
-\usepackage{hyperref}
 \usepackage{microtype}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{url}
+\usepackage{hyperref}
 
 % Float placement & spacing optimizations to prevent float queue clumping
 \renewcommand{\topfraction}{0.95}
@@ -29,12 +35,12 @@
 \setlength{\intextsep}{6pt plus 2pt minus 2pt}
 \setlength{\tabcolsep}{4.5pt}
 
-\newcommand{\ecs}{\text{ECS}}
-\newcommand{\ecsnr}{\text{ECS}_{\text{NR}}}
-\newcommand{\eri}{\text{ERI}}
-\newcommand{\aasist}{\text{AASIST}}
-\newcommand{\ig}{\text{IG}}
-\newcommand{\shap}{\text{SHAP}}
+\newcommand{\ecs}{\ensuremath{\mathrm{ECS}}}
+\newcommand{\ecsnr}{\ensuremath{\mathrm{ECS}_{\mathrm{NR}}}}
+\newcommand{\eri}{\ensuremath{\mathrm{ERI}}}
+\newcommand{\aasist}{\ensuremath{\mathrm{AASIST}}}
+\newcommand{\ig}{\ensuremath{\mathrm{IG}}}
+\newcommand{\shap}{\ensuremath{\mathrm{SHAP}}}
 
 \begin{document}
 
@@ -84,9 +90,9 @@ The deployable proxy (ECS-NR) serves as an automated triage aid rather than a va
 \subsection*{Contributions}
 \begin{enumerate}
   \item \textbf{Decoupled Robustness Evaluation}: A systematic audit separating classification accuracy from explanation faithfulness across Opus (6--32\,kbps) and AWGN (10--20\,dB) on 100 stratified ASVspoof 2021 DF utterances.
-  \item \textbf{Explanation Consistency Score (\ecs{})}: A multi-dimensional metric integrating Attribution Stability (\textsc{ES}), Spectral Band Alignment (\textsc{SBA}), and Faithfulness Preservation (\textsc{FP}), identifying a collapse boundary at $b_0 = 7.23$\,kbps (95\% bootstrap CI [7.07, 7.37]\,kbps).
-  \item \textbf{Reference-Free Triage Proxy (\ecsnr{})}: A deployable proxy evaluated on a held-out 30\% validation split, enabling automated inference-time flagging of collapsed explanations without reference audio.
-  \item \textbf{Explanation Reliability Index (\eri{})}: A composite augmenting \ecs{} with temporal consistency across sliding attribution windows.
+  \item \textbf{Explanation Consistency Score (\texorpdfstring{\ecs{}}{ECS})}: A multi-dimensional metric integrating Attribution Stability (\textsc{ES}), Spectral Band Alignment (\textsc{SBA}), and Faithfulness Preservation (\textsc{FP}), identifying a collapse boundary at $b_0 = 7.23$\,kbps (95\% bootstrap CI [7.07, 7.37]\,kbps).
+  \item \textbf{Reference-Free Triage Proxy (\texorpdfstring{\ecsnr{}}{ECS-NR})}: A deployable proxy evaluated on a held-out 30\% validation split, enabling automated inference-time flagging of collapsed explanations without reference audio.
+  \item \textbf{Explanation Reliability Index (\texorpdfstring{\eri{}}{ERI})}: A composite augmenting \ecs{} with temporal consistency across sliding attribution windows.
 \end{enumerate}
 
 % ---------------------------------------------------------------
@@ -139,7 +145,7 @@ Figure~\ref{fig:pipeline} depicts the framework, comprising a laboratory referen
 We evaluate the official pretrained \aasist{}~\cite{jung2022aasist} (16\,kHz, raw waveform graph attention) across five benchmark conditions: C0 (Clean), C8 (Opus 16\,kbps), C9 (Opus 6\,kbps), N1 (AWGN 20\,dB SNR), and N2 (AWGN 10\,dB SNR).
 Attributions are extracted via Integrated Gradients (\ig{})~\cite{sundararajan2017axiomatic} ($T=20$ Riemann steps, zero baseline) in Captum v0.7, projected to the time-frequency domain via Hann-windowed STFT ($n_{\rm fft}=512$, hop=128) over 64 mel filterbanks, producing attribution map $A \in \mathbb{R}^{64 \times T}$.
 
-\subsection{Explanation Consistency Score (\ecs{})}
+\subsection{Explanation Consistency Score (\texorpdfstring{\ecs{}}{ECS})}
 \label{subsec:ecs}
 \ecs{} evaluates explanation trustworthiness under condition $d$:
 \begin{equation}
@@ -165,7 +171,8 @@ Because SBA evaluates condition-wide alignment, a single scalar is computed per 
 \end{equation}
 Samples with $\ecs \geq 0.50$ are classified \textbf{TRUSTED}; $\ecs < 0.50$ are \textbf{UNTRUSTED}.
 
-\subsection{Temporal Consistency (\eri{}) and Reference-Free Proxy (\ecsnr{})}
+\subsection{Temporal Consistency (\texorpdfstring{\eri{}}{ERI}) and Reference-Free Proxy (\texorpdfstring{\ecsnr{}}{ECS-NR})}
+\label{subsec:eri_proxy}
 The Explanation Reliability Index incorporates frame-level stability across $K=8$ temporal windows:
 \begin{equation}
   \eri(x,d) = 0.70\cdot\ecs(x,d) + 0.30\cdot\mathrm{TC}(x,d)
@@ -336,7 +343,7 @@ N2 (AWGN 10dB) & 0.974\,$\pm$\,0.005 & 0.824 & \textbf{RELIABLE}   & $-0.073$ & 
 \label{fig:saliency_eri}
 \end{figure}
 
-\subsection{Reference-Free Proxy (\ecsnr{}) Evaluation}
+\subsection{Reference-Free Proxy (\texorpdfstring{\ecsnr{}}{ECS-NR}) Evaluation}
 Table~\ref{tab:proxy_comp} evaluates \ecsnr{} on the held-out 30\% validation split ($N=150$).
 Because C9 instances have ground-truth $\ecs < 0.30$ while trusted conditions have $\ecs > 0.70$, the ranking metric achieves $\text{AUROC} = 1.000$.
 When evaluating classification at an uncalibrated default cutoff of 0.5 on the raw proxy scale, precision is low due to offset mismatch ($F_1 = 0.333$).
