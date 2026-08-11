@@ -1,0 +1,57 @@
+{
+  "C0_clean": {
+    "eer": 4.2,
+    "min_tdcf": 0.112,
+    "accuracy": 95.8,
+    "p_bonafide": 0.038,
+    "p_bonafide_sd": 0.025,
+    "p_spoof": 0.982,
+    "p_spoof_sd": 0.018,
+    "p_overall": 0.51,
+    "p_overall_sd": 0.472
+  },
+  "C8_opus16": {
+    "eer": 6.1,
+    "min_tdcf": 0.168,
+    "accuracy": 93.9,
+    "p_bonafide": 0.059,
+    "p_bonafide_sd": 0.034,
+    "p_spoof": 0.965,
+    "p_spoof_sd": 0.027,
+    "p_overall": 0.512,
+    "p_overall_sd": 0.453
+  },
+  "C9_opus6": {
+    "eer": 38.4,
+    "min_tdcf": 0.945,
+    "accuracy": 61.6,
+    "p_bonafide": 0.392,
+    "p_bonafide_sd": 0.118,
+    "p_spoof": 0.632,
+    "p_spoof_sd": 0.141,
+    "p_overall": 0.512,
+    "p_overall_sd": 0.178
+  },
+  "N1_awgn20": {
+    "eer": 4.8,
+    "min_tdcf": 0.129,
+    "accuracy": 95.2,
+    "p_bonafide": 0.046,
+    "p_bonafide_sd": 0.029,
+    "p_spoof": 0.974,
+    "p_spoof_sd": 0.022,
+    "p_overall": 0.51,
+    "p_overall_sd": 0.464
+  },
+  "N2_awgn10": {
+    "eer": 7.8,
+    "min_tdcf": 0.204,
+    "accuracy": 92.2,
+    "p_bonafide": 0.074,
+    "p_bonafide_sd": 0.042,
+    "p_spoof": 0.948,
+    "p_spoof_sd": 0.035,
+    "p_overall": 0.511,
+    "p_overall_sd": 0.437
+  }
+}
