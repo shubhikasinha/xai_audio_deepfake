@@ -4,6 +4,7 @@
 % AIST 2026 -- Springer CCIS / LNCS Format
 % Track 3: Generative and Learning-Based AI for Speech Technologies
 % Sub-topic: Explainable, Trustworthy, and Responsible AI for Speech
+% Target: Exactly 10 Pages (Submission-Ready)
 % ============================================================
 \documentclass[runningheads]{llncs}
 \usepackage[T1]{fontenc}
@@ -18,12 +19,22 @@
 \usepackage{subcaption}
 \usepackage{url}
 
-\newcommand{\ecs}{\textsc{ECS}}
-\newcommand{\ecsnr}{\textsc{ECS}$_{\text{NR}}$}
-\newcommand{\eri}{\textsc{ERI}}
-\newcommand{\aasist}{\textsc{AASIST}}
-\newcommand{\ig}{\textsc{IG}}
-\newcommand{\shap}{\textsc{SHAP}}
+% Float placement & spacing optimizations to prevent float queue clumping
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.85}
+\setlength{\textfloatsep}{7pt plus 2pt minus 2pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\tabcolsep}{4.5pt}
+
+\newcommand{\ecs}{\text{ECS}}
+\newcommand{\ecsnr}{\text{ECS}_{\text{NR}}}
+\newcommand{\eri}{\text{ERI}}
+\newcommand{\aasist}{\text{AASIST}}
+\newcommand{\ig}{\text{IG}}
+\newcommand{\shap}{\text{SHAP}}
 
 \begin{document}
 
@@ -119,7 +130,7 @@ Figure~\ref{fig:pipeline} depicts the framework, comprising a laboratory referen
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.90\linewidth]{figures/fig8_methodology_pipeline.png}
+  \includegraphics[width=0.88\linewidth]{figures/fig8_methodology_pipeline.png}
   \caption{Dual-Path Framework: (Top) Reference-based audit computing ground-truth \ecs{}; (Bottom) Deployable reference-free triage proxy (\ecsnr{}).}
   \label{fig:pipeline}
 \end{figure}
@@ -135,20 +146,31 @@ Attributions are extracted via Integrated Gradients (\ig{})~\cite{sundararajan20
   \ecs(x,d) = 0.40\cdot\mathrm{ES}(x,d) + 0.30\cdot\mathrm{SBA}(d) + 0.30\cdot\mathrm{FP}(x,d)
   \label{eq:ecs}
 \end{equation}
-\begin{enumerate}
-  \item \textbf{Explanation Stability (ES)}: Per-sample cosine similarity between clean attribution $A_{\text{clean}}$ and degraded attribution $A_d$:
-  $\mathrm{ES}(x,d) = \langle A_{\text{clean}}, A_d \rangle / (\|A_{\text{clean}}\|_F \|A_d\|_F)$.
-  \item \textbf{Spectral Band Alignment (SBA)}: Condition-level Pearson correlation between attribution mass in vocoder artefact bands $\mathcal{B}=[4,8]$\,kHz and model spoof confidence across all samples in condition $d$:
-  $\mathrm{SBA}(d) = r\left(\sum_{f \in \mathcal{B}} A_d^{(i)}[f,:],\, P(\text{spoof}\mid x_i,d)\right)$.
-  Because SBA evaluates condition-wide alignment, a single scalar is computed per condition and broadcast to its constituent samples.
-  \item \textbf{Faithfulness Preservation (FP)}: Preservation of Deletion AUC relative to clean audio:
-  $\mathrm{FP}(x,d) = 1 - |\mathrm{DelAUC}_{\text{clean}} - \mathrm{DelAUC}_d|$.
-\end{enumerate}
+where the three constituent metrics are defined as follows:
+
+\textbf{1. Explanation Stability (ES):} Per-sample cosine similarity between clean attribution $A_{\text{clean}}$ and degraded attribution $A_d$:
+\begin{equation}
+  \mathrm{ES}(x,d) = \frac{\langle A_{\text{clean}}, A_d \rangle}{\|A_{\text{clean}}\|_F \|A_d\|_F}
+\end{equation}
+
+\textbf{2. Spectral Band Alignment (SBA):} Condition-level Pearson correlation between attribution mass in vocoder artefact bands $\mathcal{B}=[4,8]$\,kHz and model spoof confidence:
+\begin{equation}
+  \mathrm{SBA}(d) = r\left(\left\{\sum_{f \in \mathcal{B}} A_d^{(i)}[f,:]\right\}_{i=1}^N,\; \left\{P(\text{spoof}\mid x_i,d)\right\}_{i=1}^N\right)
+\end{equation}
+Because SBA evaluates condition-wide alignment, a single scalar is computed per condition and broadcast to all constituent samples.
+
+\textbf{3. Faithfulness Preservation (FP):} Preservation of Deletion AUC relative to clean audio:
+\begin{equation}
+  \mathrm{FP}(x,d) = 1 - |\mathrm{DelAUC}_{\text{clean}} - \mathrm{DelAUC}_d|
+\end{equation}
 Samples with $\ecs \geq 0.50$ are classified \textbf{TRUSTED}; $\ecs < 0.50$ are \textbf{UNTRUSTED}.
 
 \subsection{Temporal Consistency (\eri{}) and Reference-Free Proxy (\ecsnr{})}
 The Explanation Reliability Index incorporates frame-level stability across $K=8$ temporal windows:
-$\eri(x,d) = 0.70\cdot\ecs(x,d) + 0.30\cdot\mathrm{TC}(x,d)$, where $\mathrm{TC}(x,d) = 1 - \sigma_\tau(\mathrm{ES}(x^{(\tau)},d))$.
+\begin{equation}
+  \eri(x,d) = 0.70\cdot\ecs(x,d) + 0.30\cdot\mathrm{TC}(x,d)
+\end{equation}
+where $\mathrm{TC}(x,d) = 1 - \sigma_\tau(\mathrm{ES}(x^{(\tau)},d))$.
 For inference deployment without clean reference audio, the proxy is defined as:
 \begin{equation}
   \ecsnr{}(x) = w_1 \cdot (1 - \mathrm{SF}(A_d)) + w_2 \cdot \mathrm{HFR}(A_d)
@@ -175,82 +197,73 @@ Random seeds (42) ensure exact reproducibility.
 % ---------------------------------------------------------------
 
 \subsection{Detection Accuracy vs.\ Explanation Faithfulness}
-Table~\ref{tab:detection} summarizes detector accuracy.
-Under clean and moderate degradations (C0, C8, N1, N2), \aasist{} maintains low EER (4.2\%--7.8\%) and accuracy above 92\%.
-Under C9 (Opus 6\,kbps), error rates increase (EER 38.4\%, accuracy 61.6\%).
+Table~\ref{tab:detection_ecs} summarizes detector accuracy alongside explanation consistency.
+Under clean and moderate degradations (C0, C8, N1, N2), \aasist{} maintains low EER (4.2\%--7.8\%) and explanations remain reliable ($\ecs \geq 0.760$).
+Under C9 (Opus 6\,kbps), error rates increase (EER 38.4\%, accuracy 61.6\%) while \ecs{} collapses to $0.263 \pm 0.012$ ($d = 30.66$ vs.\ C0), with attribution stability plunging to $0.171 \pm 0.009$.
 
 \begin{table}[tb]
 \centering
-\caption{Detection performance across degradation conditions ($N=100$, balanced 50/50).}
-\label{tab:detection}
+\caption{Detection performance, \ecs{} components, and 95\% bootstrap CI across conditions ($N=100$, balanced 50/50).}
+\label{tab:detection_ecs}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}lcccccc@{}}
+\begin{tabular}{@{}lcccccccc@{}}
 \toprule
-\textbf{Condition} & \textbf{EER (\%)} & \textbf{min t-DCF} & \textbf{Accuracy (\%)} & \textbf{Mean $P_{\text{bonafide}}$} & \textbf{Mean $P_{\text{spoof}}$} & \textbf{Detection State} \\
+\textbf{Condition} & \textbf{EER (\%)} & \textbf{Acc. (\%)} & \textbf{ES} & \textbf{SBA$^\dagger$} & \textbf{FP} & \textbf{\ecs{} (Mean\,$\pm$\,SD)} & \textbf{Status} & \textbf{95\% Bootstrap CI} \\
 \midrule
-C0 (Clean)     & 4.20 & 0.112 & 95.8 & 0.038\,$\pm$\,0.025 & 0.982\,$\pm$\,0.018 & Confident \\
-C8 (Opus 16k)  & 6.10 & 0.168 & 93.9 & 0.059\,$\pm$\,0.034 & 0.965\,$\pm$\,0.027 & Confident \\
-C9 (Opus 6k)   & 38.40 & 0.945 & 61.6 & 0.392\,$\pm$\,0.118 & 0.632\,$\pm$\,0.141 & Severe Degradation \\
-N1 (AWGN 20dB) & 4.80 & 0.129 & 95.2 & 0.046\,$\pm$\,0.029 & 0.974\,$\pm$\,0.022 & Confident \\
-N2 (AWGN 10dB) & 7.80 & 0.204 & 92.2 & 0.074\,$\pm$\,0.042 & 0.948\,$\pm$\,0.035 & Confident \\
+C0 (Clean)     & 4.20  & 95.8 & 1.000\,$\pm$\,0.000 & 0.443 & 0.997\,$\pm$\,0.004 & 0.832\,$\pm$\,0.014 & \textbf{TRUSTED}   & [0.829, 0.835] \\
+C8 (Opus 16k)  & 6.10  & 93.9 & 0.941\,$\pm$\,0.000 & 0.438 & 0.995\,$\pm$\,0.004 & 0.817\,$\pm$\,0.015 & \textbf{TRUSTED}   & [0.814, 0.820] \\
+C9 (Opus 6k)   & 38.40 & 61.6 & 0.171\,$\pm$\,0.009 & 0.050 & 0.597\,$\pm$\,0.026 & 0.263\,$\pm$\,0.012 & \textbf{UNTRUSTED} & [0.260, 0.266] \\
+N1 (AWGN 20dB) & 4.80  & 95.2 & 0.840\,$\pm$\,0.017 & 0.440 & 0.992\,$\pm$\,0.004 & 0.773\,$\pm$\,0.019 & \textbf{TRUSTED}   & [0.769, 0.777] \\
+N2 (AWGN 10dB) & 7.80  & 92.2 & 0.802\,$\pm$\,0.019 & 0.467 & 0.991\,$\pm$\,0.004 & 0.760\,$\pm$\,0.021 & \textbf{TRUSTED}   & [0.756, 0.764] \\
+\midrule
+\multicolumn{9}{l}{\footnotesize $^\dagger$SBA is a condition-level statistic broadcast to all samples in that condition.} \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-\begin{table}[tb]
-\centering
-\caption{Explanation Consistency Score (\ecs{}) and components across conditions.}
-\label{tab:ecs}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}lcccccc@{}}
-\toprule
-\textbf{Condition} & \textbf{ES (sample)} & \textbf{SBA (cond.)$^\dagger$} & \textbf{FP (sample)} & \textbf{\ecs{} (Mean\,$\pm$\,SD)} & \textbf{Status} & \textbf{95\% Bootstrap CI} \\
-\midrule
-C0 (Clean)     & 1.000\,$\pm$\,0.000 & 0.443 & 0.997\,$\pm$\,0.004 & 0.832\,$\pm$\,0.014 & \textbf{TRUSTED}   & [0.829, 0.835] \\
-C8 (Opus 16k)  & 0.941\,$\pm$\,0.000 & 0.438 & 0.995\,$\pm$\,0.004 & 0.817\,$\pm$\,0.015 & \textbf{TRUSTED}   & [0.814, 0.820] \\
-C9 (Opus 6k)   & 0.171\,$\pm$\,0.009 & 0.050 & 0.597\,$\pm$\,0.026 & 0.263\,$\pm$\,0.012 & \textbf{UNTRUSTED} & [0.260, 0.266] \\
-N1 (AWGN 20dB) & 0.840\,$\pm$\,0.017 & 0.440 & 0.992\,$\pm$\,0.004 & 0.773\,$\pm$\,0.019 & \textbf{TRUSTED}   & [0.769, 0.777] \\
-N2 (AWGN 10dB) & 0.802\,$\pm$\,0.019 & 0.467 & 0.991\,$\pm$\,0.004 & 0.760\,$\pm$\,0.021 & \textbf{TRUSTED}   & [0.756, 0.764] \\
-\midrule
-\multicolumn{7}{l}{\footnotesize $^\dagger$SBA is a condition-level statistic broadcast to all samples in that condition.} \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+\subsection{Continuous Bitrate Sweep \& Attack Stratification}
+Figure~\ref{fig:sweep_strat} presents the quantitative collapse dynamics.
+Sweeping bitrates across $\{6, 8, 10, 12, 14, 16, 24, 32\}$\,kbps reveals a sharp phase transition (Fig.~\ref{fig:sweep_strat}a).
+A 4-parameter logistic sigmoid fit yields inflection point $b_0 = 7.23$\,kbps ($R^2 = 0.999$ on aggregate step means).
+A 1{,}000-resample bootstrap over utterances yields a 95\% CI of $[7.07, 7.37]$\,kbps (Fig.~\ref{fig:sweep_strat}b).
+At 6\,kbps $\ecs = 0.295$ (collapsed); at 8\,kbps $\ecs = 0.527$ (crossing threshold); at 12\,kbps $\ecs = 0.808$ (fully trusted).
 
-Table~\ref{tab:ecs} presents \ecs{} results.
-Under C0, C8, N1, and N2, explanations remain reliable ($\ecs \geq 0.760$).
-Under C9, \ecs{} drops to $0.263 \pm 0.012$ ($d = 30.66$ vs.\ C0), with attribution stability plunging to $0.171 \pm 0.009$---a severe collapse in explanation faithfulness.
+Table~\ref{tab:attack_strat} and Figure~\ref{fig:sweep_strat}(c,d) confirm that collapse under C9 is uniform across synthesis families ($\ecs_{\text{C9}} \in [0.262, 0.264]$), indicating that collapse is driven by channel codec quantization rather than specific synthesis techniques.
+Figure~\ref{fig:sweep_strat}c shows flattened deletion curves for C9, confirming unfaithful feature ranking.
 
 \begin{figure}[tb]
 \centering
 \begin{subfigure}[b]{0.48\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figures/fig1_ecs_per_condition.png}
-  \caption{Bitrate sweep & sigmoid collapse fit.}
+  \caption{Bitrate sweep \& sigmoid fit.}
   \label{fig:sweep}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.48\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figures/fig_bootstrap_b0.png}
-  \caption{Bootstrap threshold distribution ($N=1000$).}
+  \caption{Bootstrap $b_0$ distribution ($N=1000$).}
   \label{fig:boot}
 \end{subfigure}
-\caption{(a) Sigmoid transition identifying collapse threshold $b_0 = 7.23$\,kbps. (b) Bootstrap distribution confirming 95\% CI of $[7.07, 7.37]$\,kbps.}
-\label{fig:sweep_boot}
+\vspace{4pt}
+\begin{subfigure}[b]{0.48\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig3_deletion_curves.png}
+  \caption{Deletion faithfulness curves.}
+  \label{fig:deletion}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig4_radar_chart.png}
+  \caption{Attack family stratification.}
+  \label{fig:radar}
+\end{subfigure}
+\caption{Quantitative explanation collapse analysis: (a) Sigmoid transition identifying $b_0 = 7.23$\,kbps; (b) Bootstrap distribution confirming 95\% CI $[7.07, 7.37]$\,kbps; (c) Deletion curves across conditions; (d) Attack family invariance under collapse.}
+\label{fig:sweep_strat}
 \end{figure}
-
-\subsection{Continuous Bitrate Sweep \& Sigmoid Collapse Fit}
-Sweeping bitrates across $\{6, 8, 10, 12, 14, 16, 24, 32\}$\,kbps (Fig.~\ref{fig:sweep_boot}) reveals a sharp phase transition.
-A 4-parameter logistic sigmoid fit yields inflection point $b_0 = 7.23$\,kbps ($R^2 = 0.999$ on aggregate step means).
-A 1{,}000-resample bootstrap over utterances yields a 95\% CI of $[7.07, 7.37]$\,kbps, confirming threshold stability across sample subsets.
-At 6\,kbps $\ecs = 0.295$ (collapsed); at 8\,kbps $\ecs = 0.527$ (crossing trust threshold); at 12\,kbps $\ecs = 0.808$ (fully trusted).
-
-\subsection{Attack Stratification and Deletion Faithfulness}
-Table~\ref{tab:attack_strat} and Figure~\ref{fig:deletion_radar} confirm that collapse under C9 is uniform across synthesis families ($\ecs_{\text{C9}} \in [0.262, 0.264]$), indicating that collapse is driven by channel codec quantization rather than specific synthesis techniques.
-Figure~\ref{fig:deletion} shows flattened deletion curves for C9, confirming unfaithful feature ranking.
 
 \begin{table}[tb]
 \centering
@@ -270,49 +283,13 @@ Bonafide Speech (Reference)      & 0.832\,$\pm$\,0.016 & 0.820\,$\pm$\,0.015 & 0
 }
 \end{table}
 
-\begin{figure}[tb]
-\centering
-\begin{subfigure}[b]{0.48\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figures/fig3_deletion_curves.png}
-  \caption{Deletion faithfulness curves.}
-  \label{fig:deletion}
-\end{subfigure}
-\hfill
-\begin{subfigure}[b]{0.48\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figures/fig4_radar_chart.png}
-  \caption{Stratification across attack families.}
-  \label{fig:radar}
-\end{subfigure}
-\caption{(a) Rapid spoof score drop for clean/moderate audio vs.\ flat response under C9. (b) Invariant collapse across synthesis families.}
-\label{fig:deletion_radar}
-\end{figure}
-
-\begin{figure}[tb]
-  \centering
-  \includegraphics[width=0.88\linewidth]{figures/fig2_early_warning_dashboard.png}
-  \caption{Forensic Trust Dashboard displaying automated early-warning status per condition.}
-  \label{fig:dashboard}
-\end{figure}
-
-\subsection{Spectrogram Saliency Evolution}
-Figure~\ref{fig:heatmaps} illustrates attribution maps across conditions.
+\subsection{Spectrogram Saliency Evolution \& Temporal Consistency}
+Figure~\ref{fig:saliency_eri} illustrates attribution saliency maps alongside temporal consistency and dashboard triage.
 Under C0 and C8, saliency focuses on high-frequency vocoder harmonics ($[4, 8]$\,kHz).
-Under C9, quantization truncates high frequencies, causing attributions to degenerate into diffuse background noise.
-
-\begin{figure}[tb]
-  \centering
-  \includegraphics[width=0.96\linewidth]{figures/fig5_spectrogram_saliency.png}
-  \caption{Attribution maps under degradation. C0 and C8 focus on high-frequency vocoder cues; C9 exhibits diffuse noise collapse.}
-  \label{fig:heatmaps}
-\end{figure}
-
-\subsection{Temporal Consistency (\eri{}) and Statistical Tests}
-Table~\ref{tab:eri_stats} reports \eri{} and Wilcoxon tests ($N=100$, Bonferroni $\alpha=0.0125$).
-Temporal consistency (TC) shows modest variation (0.953--0.996), confirming that collapse under C9 is globally distributed across time frames rather than isolated to transient windows.
-Figure~\ref{fig:eri_map} visualizes per-window stability heatmaps across utterances.
-Effect sizes confirm extreme significance for C9 ($d = 30.66$) and modest but detectable impact for C8 ($d = 0.78$).
+Under C9, quantization truncates high frequencies, causing attributions to degenerate into diffuse background noise (Fig.~\ref{fig:saliency_eri}a).
+Table~\ref{tab:eri_stats} and Figure~\ref{fig:saliency_eri}b report \eri{} and Wilcoxon tests ($N=100$, Bonferroni $\alpha=0.0125$).
+Temporal consistency (TC) shows modest variation (0.953--0.996), confirming that collapse under C9 is globally distributed across time frames.
+Figure~\ref{fig:saliency_eri}c depicts the automated forensic triage dashboard.
 
 \begin{table}[tb]
 \centering
@@ -334,10 +311,29 @@ N2 (AWGN 10dB) & 0.974\,$\pm$\,0.005 & 0.824 & \textbf{RELIABLE}   & $-0.073$ & 
 \end{table}
 
 \begin{figure}[tb]
+\centering
+\begin{subfigure}[b]{0.96\textwidth}
   \centering
-  \includegraphics[width=0.96\linewidth]{figures/fig_eri_temporal.png}
-  \caption{Temporal attribution stability heatmap across 8 sliding windows for 20 sample utterances.}
+  \includegraphics[width=\textwidth]{figures/fig5_spectrogram_saliency.png}
+  \caption{Attribution saliency evolution under codec degradation.}
+  \label{fig:heatmaps}
+\end{subfigure}
+\vspace{4pt}
+\begin{subfigure}[b]{0.52\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_eri_temporal.png}
+  \caption{Temporal stability across 8 windows.}
   \label{fig:eri_map}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.44\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig2_early_warning_dashboard.png}
+  \caption{Forensic triage dashboard.}
+  \label{fig:dashboard}
+\end{subfigure}
+\caption{Qualitative and temporal explainability audit: (a) Saliency maps across clean and degraded conditions; (b) Sliding-window attribution stability; (c) Forensic trust triage dashboard.}
+\label{fig:saliency_eri}
 \end{figure}
 
 \subsection{Reference-Free Proxy (\ecsnr{}) Evaluation}
@@ -380,7 +376,7 @@ Attribution Stability (\textsc{ES}) & 0.884 & 0.840 & Requires clean reference a
   \caption{\ecsnr{} vs.\ ground-truth \ecs{} scatter.}
   \label{fig:scatter}
 \end{subfigure}
-\caption{(a) ROC curves comparing baseline methods. (b) Scatter of \ecsnr{} proxy vs.\ reference-based \ecs{} on held-out validation data ($N=150$).}
+\caption{(a) ROC curves comparing baseline methods; (b) Scatter of \ecsnr{} proxy vs.\ reference-based \ecs{} on held-out validation data ($N=150$).}
 \label{fig:roc_scatter}
 \end{figure}
 
