@@ -256,3 +256,45 @@ class ExplanationConsistencyScore:
             "confidence": confidence,
             "message": message,
         }
+
+    def compute_threshold_sensitivity(
+        self,
+        ecs_values: np.ndarray,
+        ground_truth_labels: np.ndarray,
+        threshold_candidates: Optional[List[float]] = None,
+    ) -> List[Dict]:
+        """
+        Evaluate classification metrics across multiple candidate thresholds.
+        Used for Table 5 threshold sensitivity analysis.
+
+        Args:
+            ecs_values: Array of ECS scores.
+            ground_truth_labels: Binary labels (1 = TRUSTED/Faithful, 0 = UNTRUSTED/Collapsed).
+            threshold_candidates: List of threshold values to test (default [0.3, 0.4, 0.5, 0.6, 0.7]).
+
+        Returns:
+            List of dictionaries with precision, recall, f1, accuracy per threshold.
+        """
+        from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+
+        if threshold_candidates is None:
+            threshold_candidates = [0.30, 0.40, 0.50, 0.60, 0.70]
+
+        results = []
+        for tau in threshold_candidates:
+            pred_trusted = (ecs_values >= tau).astype(int)
+            prec = precision_score(ground_truth_labels, pred_trusted, zero_division=0)
+            rec = recall_score(ground_truth_labels, pred_trusted, zero_division=0)
+            f1 = f1_score(ground_truth_labels, pred_trusted, zero_division=0)
+            acc = accuracy_score(ground_truth_labels, pred_trusted)
+
+            results.append({
+                "threshold": float(tau),
+                "precision": float(prec),
+                "recall": float(rec),
+                "f1_score": float(f1),
+                "accuracy": float(acc),
+            })
+
+        return results
+

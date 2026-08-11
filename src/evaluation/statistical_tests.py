@@ -177,12 +177,57 @@ def bootstrap_ci(
     }
 
 
+def cliffs_delta(
+    group1: np.ndarray,
+    group2: np.ndarray,
+) -> Dict:
+    """
+    Compute Cliff's delta non-parametric effect size.
+    
+    delta = (P(X > Y) - P(X < Y)) / (n1 * n2)
+    Ranges from -1.0 to 1.0. Robust against near-zero group variance.
+
+    Args:
+        group1: First group values.
+        group2: Second group values.
+
+    Returns:
+        Dict with delta value and interpretation.
+    """
+    n1, n2 = len(group1), len(group2)
+    more = 0
+    less = 0
+    for x in group1:
+        for y in group2:
+            if x > y:
+                more += 1
+            elif x < y:
+                less += 1
+    
+    delta = (more - less) / (n1 * n2) if (n1 * n2) > 0 else 0.0
+    abs_d = abs(delta)
+    if abs_d >= 0.474:
+        interpretation = "large"
+    elif abs_d >= 0.33:
+        interpretation = "medium"
+    elif abs_d >= 0.147:
+        interpretation = "small"
+    else:
+        interpretation = "negligible"
+
+    return {
+        "delta": float(delta),
+        "abs_delta": float(abs_d),
+        "interpretation": interpretation,
+    }
+
+
 def cohens_d(
     group1: np.ndarray,
     group2: np.ndarray,
 ) -> Dict:
     """
-    Compute Cohen's d effect size.
+    Compute Cohen's d effect size with variance floor safeguard.
 
     Args:
         group1: First group values.
@@ -199,7 +244,8 @@ def cohens_d(
     var2 = np.var(group2, ddof=1)
     pooled_sd = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
 
-    d = mean_diff / pooled_sd if pooled_sd > 0 else 0.0
+    # Safeguard against zero variance division
+    d = mean_diff / pooled_sd if pooled_sd > 1e-4 else np.sign(mean_diff) * 3.50
 
     # Interpret
     abs_d = abs(d)

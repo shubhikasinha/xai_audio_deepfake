@@ -412,3 +412,42 @@ def _apply_spectrogram_insertion(
         inserted[start_sample:end_sample] = waveform[start_sample:end_sample]
 
     return inserted
+
+
+def apply_frequency_mask(
+    waveform: torch.Tensor,
+    low_hz: float,
+    high_hz: float,
+    sample_rate: int = 16000,
+    n_fft: int = 512,
+    hop_length: int = 128,
+) -> torch.Tensor:
+    """
+    Apply precise frequency band stop (masking) to a waveform.
+    Used for mechanistic causal validation of explanation collapse.
+
+    Args:
+        waveform: Input 1D audio tensor.
+        low_hz: Lower bound of frequency band to mask (Hz).
+        high_hz: Upper bound of frequency band to mask (Hz).
+        sample_rate: Audio sample rate in Hz.
+        n_fft: STFT window size.
+        hop_length: STFT hop size.
+
+    Returns:
+        Band-masked audio tensor with identical shape.
+    """
+    hann_win = torch.hann_window(n_fft, device=waveform.device)
+    spec = torch.stft(
+        waveform, n_fft=n_fft, hop_length=hop_length,
+        window=hann_win, return_complex=True
+    )
+    freqs = torch.fft.rfftfreq(n_fft, d=1.0 / sample_rate).to(waveform.device)
+    band_mask = ((freqs >= low_hz) & (freqs <= high_hz)).float().to(waveform.device)
+    # Attenuate masked frequency bins by 99%
+    gain = 1.0 - 0.99 * band_mask.unsqueeze(-1)
+    spec_masked = spec * gain
+    return torch.istft(
+        spec_masked, n_fft=n_fft, hop_length=hop_length,
+        window=hann_win, length=len(waveform)
+    )
