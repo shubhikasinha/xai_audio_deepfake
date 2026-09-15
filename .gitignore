@@ -55,6 +55,9 @@ Thumbs.db
 .env
 *.env
 
-# Logs
 *.log
 wandb/
+
+# Scratch / interim result directories
+new results/
+newer res/

@@ -91,9 +91,16 @@ def paired_wilcoxon(
         alternative=alternative,
     )
 
-    # Effect size (r = Z / sqrt(N))
+    # Effect size r = Z / sqrt(N) — use isf for numerical stability,
+    # and differentiate between two-sided and one-sided alternatives.
     n_eff = int(np.sum(non_zero))
-    z_score = stats.norm.ppf(1 - p_value / 2) if p_value < 1.0 else 0.0
+    if p_value < 1.0 and p_value > 0.0:
+        if alternative == "two-sided":
+            z_score = float(stats.norm.isf(p_value / 2))
+        else:
+            z_score = float(stats.norm.isf(p_value))
+    else:
+        z_score = 0.0
     effect_size = z_score / np.sqrt(n_eff) if n_eff > 0 else 0.0
 
     return {
@@ -195,14 +202,11 @@ def cliffs_delta(
         Dict with delta value and interpretation.
     """
     n1, n2 = len(group1), len(group2)
-    more = 0
-    less = 0
-    for x in group1:
-        for y in group2:
-            if x > y:
-                more += 1
-            elif x < y:
-                less += 1
+    # Vectorised comparison: avoids O(n²) Python loop at N=500
+    g1 = np.asarray(group1, dtype=float)
+    g2 = np.asarray(group2, dtype=float)
+    more = int(np.sum(g1[:, None] > g2[None, :]))
+    less = int(np.sum(g1[:, None] < g2[None, :]))
     
     delta = (more - less) / (n1 * n2) if (n1 * n2) > 0 else 0.0
     abs_d = abs(delta)
