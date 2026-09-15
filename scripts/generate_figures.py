@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from scipy.optimize import curve_fit
 
-REPO_ROOT = Path("c:/Users/RetailAdmin/OneDrive/Desktop/projects/deepfake")
+REPO_ROOT = Path(__file__).resolve().parent.parent
 RESULTS_DIR = REPO_ROOT / "results"
 FIG_DIR = RESULTS_DIR / "figures"
 PAPER_FIG = REPO_ROOT / "paper" / "figures"
