@@ -1,0 +1,5 @@
+Condition,Delta ECS,Cliff delta,Wilcoxon r,p-value
+C8_opus16,+0.037,-1.00 (large),0.87,3.90e-18
+N1_awgn20,+0.053,-1.00 (large),0.87,3.90e-18
+N2_awgn10,+0.083,-1.00 (large),0.87,3.90e-18
+C9_opus6,+0.161,-1.00 (large),0.87,3.90e-18
